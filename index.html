@@ -229,7 +229,8 @@ const FLOW = [
 ];
 const NOBACK = new Set(["intro","calc","reveal","result"]);
 
-const state = {pos:0, gender:null, age:null, answers:{}, whatsapp:""};
+const state = {pos:0, gender:null, age:null, answers:{}, whatsapp:"", utm:{}};
+try{ state.utm = Object.fromEntries(new URLSearchParams(location.search)); }catch(e){}
 const stage = document.getElementById('stage');
 const bar   = document.getElementById('bar');
 const backBtn = document.getElementById('backBtn');
@@ -332,9 +333,12 @@ function bindEmail(){const inp=document.getElementById('wa'),btn=document.getEle
   if(state.whatsapp){inp.value=fmtPhone(state.whatsapp);btn.disabled=!ok(inp.value);}
   inp.addEventListener('input',()=>{inp.value=fmtPhone(inp.value);btn.disabled=!ok(inp.value);});
   inp.addEventListener('keydown',e=>{if(e.key==='Enter'&&!btn.disabled)submitEmail();});}
+function answersExport(){return QUESTIONS.map((q,i)=>{const a=state.answers[i];
+  return a?{q:q.question,a:q.options[a.idx].t,perfil:a.p}:null;}).filter(Boolean);}
 function submitEmail(){state.whatsapp=document.getElementById('wa').value.replace(/\D/g,'');
-  // WIRE: envie {whatsapp:'+55'+state.whatsapp, gender, age, scores} pro seu CRM / API do WhatsApp
-  console.log('lead WhatsApp:','+55'+state.whatsapp,state.gender,state.age,scores());
+  const payload={whatsapp:'+55'+state.whatsapp,gender:state.gender,age:state.age,
+    profile:computeResult(),scores:scores(),answers:answersExport(),utm:state.utm};
+  fetch('/api/lead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).catch(()=>{});
   go(state.pos+1);}
 
 function viewCalc(){const steps=["Analisando seus comportamentos","Mapeando seus pensamentos automáticos","Identificando sua emoção dominante","Localizando o seu gatilho principal","Montando o seu diagnóstico"];

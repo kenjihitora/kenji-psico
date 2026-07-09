@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Descubra o seu Perfil de Procrastinação — Kenji Hirota</title>
+<meta name="description" content="Diagnóstico gratuito: descubra o seu Perfil de Procrastinação, o gatilho que ativa esse comportamento e receba um plano personalizado." />
+<style>
+  :root{
+    --bg1:#efeafe; --bg2:#e9f0ff; --card:#ffffff;
+    --ink:#1b1a2e; --muted:#6b6a80; --line:#eeecf6;
+    --accent:#6d4bf5; --accent-2:#9068ff; --accent-soft:#f2eeff;
+    --ok:#18b98a; --shadow:0 26px 70px -30px rgba(70,45,150,.45);
+    --radius:26px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0;height:100%}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Helvetica,Arial,sans-serif;
+    color:var(--ink); position:relative; overflow-x:hidden;
+    background:linear-gradient(165deg,var(--bg1),var(--bg2));
+    min-height:100dvh; display:flex; align-items:center; justify-content:center; padding:16px;
+  }
+  /* background blobs */
+  body::before,body::after{content:"";position:fixed;border-radius:50%;filter:blur(70px);opacity:.5;z-index:0}
+  body::before{width:340px;height:340px;background:#c9b8ff;top:-90px;left:-90px}
+  body::after{width:320px;height:320px;background:#a9c7ff;bottom:-100px;right:-80px}
+  .app{width:100%;max-width:452px;position:relative;z-index:1}
+  .brand{display:flex;align-items:center;gap:9px;justify-content:center;margin-bottom:12px;color:#5a5872;font-size:13px;font-weight:600}
+  .brand .dot{width:26px;height:26px;border-radius:9px;background:linear-gradient(140deg,var(--accent),var(--accent-2));color:#fff;display:grid;place-items:center;font-weight:800;font-size:13px}
+  .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;position:relative;min-height:560px;display:flex;flex-direction:column}
+  .hdr{display:flex;align-items:center;gap:12px;padding:14px 16px 12px}
+  .back{border:0;background:#f4f2fb;color:#6b6a80;width:34px;height:34px;border-radius:11px;font-size:18px;cursor:pointer;display:grid;place-items:center;transition:.15s;flex:0 0 auto}
+  .back:hover{background:#ece9f7;color:var(--ink)}
+  .back.hide{visibility:hidden}
+  .progress{flex:1;height:7px;background:var(--line);border-radius:99px;overflow:hidden}
+  .progress > i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent-2));border-radius:99px;transition:width .5s cubic-bezier(.4,0,.2,1)}
+  .stage{flex:1;position:relative;padding:8px 24px 26px;display:flex;flex-direction:column}
+  .step{font-size:11.5px;font-weight:800;color:var(--accent);letter-spacing:.7px;text-transform:uppercase;margin-bottom:11px}
+  .lead{font-size:14px;color:var(--muted);font-style:italic;line-height:1.5;margin:0 0 14px}
+  h1{font-size:27px;line-height:1.2;margin:0 0 12px;font-weight:850;letter-spacing:-.5px}
+  h2{font-size:20.5px;line-height:1.34;margin:0 0 20px;font-weight:780;letter-spacing:-.2px}
+  p.sub{font-size:15px;line-height:1.55;color:var(--muted);margin:0 0 22px}
+  .grow{flex:1}
+  /* options */
+  .options{display:flex;flex-direction:column;gap:10px}
+  .opt{
+    text-align:left;border:1.6px solid var(--line);background:#fcfbff;color:var(--ink);
+    border-radius:16px;padding:12px 13px;cursor:pointer;display:flex;align-items:center;gap:13px;
+    transition:transform .12s ease,border-color .15s,background .15s,box-shadow .15s;
+  }
+  .opt:hover{border-color:var(--accent-2);background:#fff}
+  .opt:active{transform:scale(.98)}
+  .opt.sel{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 3px rgba(109,75,245,.14)}
+  .opt .em{flex:0 0 44px;width:44px;height:44px;border-radius:13px;background:#f1edff;display:grid;place-items:center;font-size:23px;transition:.15s}
+  .opt.sel .em{background:#fff}
+  .opt .txt{font-size:14.5px;line-height:1.36;font-weight:550}
+  .opt.big .em{width:50px;height:50px;font-size:26px}
+  .opt.big .txt{font-size:16px;font-weight:650}
+  /* buttons */
+  .btn{width:100%;border:0;border-radius:16px;padding:16px;font-size:16px;font-weight:780;cursor:pointer;color:#fff;
+    background:linear-gradient(135deg,var(--accent),var(--accent-2));box-shadow:0 14px 30px -12px rgba(109,75,245,.75);
+    transition:transform .12s,box-shadow .2s;display:flex;align-items:center;justify-content:center;gap:9px}
+  .btn:hover{transform:translateY(-1px)}
+  .btn[disabled]{opacity:.45;cursor:not-allowed;box-shadow:none;transform:none}
+  .disc{margin-top:16px;font-size:11.5px;line-height:1.5;color:#a6a4bb;text-align:center}
+  .center{text-align:center}
+  .teaser-ico{width:78px;height:78px;border-radius:24px;background:var(--accent-soft);display:grid;place-items:center;font-size:38px;margin:8px auto 20px}
+  .input{width:100%;border:1.6px solid var(--line);border-radius:16px;padding:16px;font-size:16px;margin-bottom:12px;background:#fcfbff;color:var(--ink);outline:none;transition:.15s}
+  .input:focus{border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px rgba(109,75,245,.14)}
+  .phone{display:flex;align-items:stretch;gap:8px;margin-bottom:2px}
+  .phone .ddi{display:flex;align-items:center;padding:0 14px;border:1.6px solid var(--line);border-radius:16px;background:#f4f2fb;font-weight:700;font-size:15px;color:#5a5872;white-space:nowrap}
+  .phone .input{margin-bottom:0;flex:1;min-width:0}
+  /* calculating */
+  .ring{width:112px;height:112px;margin:14px auto 24px;position:relative}
+  .ring svg{transform:rotate(-90deg)}
+  .ring .pct{position:absolute;inset:0;display:grid;place-items:center;font-weight:850;font-size:25px}
+  .checklist{display:flex;flex-direction:column;gap:12px;margin-top:6px;text-align:left;max-width:300px;margin-left:auto;margin-right:auto}
+  .cl{display:flex;align-items:center;gap:12px;font-size:14.5px;color:#9c9ab2;transition:color .3s;font-weight:550}
+  .cl .mk{width:24px;height:24px;border-radius:50%;border:2px solid #e0dcf0;display:grid;place-items:center;flex:0 0 auto;transition:.3s;font-size:13px;color:#fff}
+  .cl.on{color:var(--ink)}
+  .cl.on .mk{background:var(--ok);border-color:var(--ok)}
+  /* reveal / summary */
+  .rev-ico{width:96px;height:96px;border-radius:50%;background:var(--accent-soft);display:grid;place-items:center;font-size:48px;margin:10px auto 14px;box-shadow:0 0 0 8px rgba(109,75,245,.07)}
+  .res-badge{display:inline-block;font-size:11.5px;font-weight:800;color:var(--accent);background:var(--accent-soft);padding:6px 13px;border-radius:999px;letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px}
+  .res-name{font-size:30px;font-weight:880;letter-spacing:-.6px;margin:0 0 6px;line-height:1.1}
+  .bars{display:flex;flex-direction:column;gap:11px;margin:22px 0 6px;text-align:left}
+  .barrow .bl{display:flex;justify-content:space-between;font-size:13px;font-weight:650;margin-bottom:5px}
+  .barrow .bl .pc{color:var(--muted);font-weight:600}
+  .track{height:9px;background:var(--line);border-radius:99px;overflow:hidden}
+  .track > i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#cdbcff,#b39aff);transition:width .9s cubic-bezier(.3,.7,.3,1)}
+  .barrow.top .track > i{background:linear-gradient(90deg,var(--accent),var(--accent-2))}
+  .barrow.top .bl{color:var(--accent)}
+  /* result */
+  .res-desc{font-size:15px;line-height:1.6;color:#3a3950;margin:4px 0 22px;text-align:left}
+  .facts{display:flex;flex-direction:column;gap:10px;margin:0 0 22px}
+  .fact{display:flex;gap:12px;align-items:center;background:#fcfbff;border:1px solid var(--line);border-radius:14px;padding:13px 14px;text-align:left}
+  .fact .emo{font-size:24px;line-height:1}
+  .fact .k{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-bottom:2px}
+  .fact .v{font-size:14.5px;font-weight:680;color:var(--ink)}
+  .cyc{border:1px solid var(--line);border-radius:16px;padding:16px;text-align:left}
+  .cyc .row{display:flex;align-items:center;gap:12px}
+  .cyc .n{flex:0 0 30px;height:30px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-weight:800;font-size:13px}
+  .cyc .k{font-size:10.5px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted)}
+  .cyc .v{font-size:14px;font-weight:650}
+  .cyc .arr{margin:2px 0 2px 14px;color:#cec8ea;font-size:14px}
+  h3.sec{font-size:12.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin:22px 0 12px;font-weight:800;text-align:left}
+  .offer{background:linear-gradient(160deg,#faf8ff,#f1ecff);border:1px solid var(--line);border-radius:20px;padding:22px 20px;margin-top:20px;text-align:left}
+  .offer p{font-size:15px;line-height:1.6;color:#3a3950;margin:0 0 14px}
+  .offer .good{background:#e9f9f2;border:1px solid #cdeee0;color:#0e7a58;border-radius:12px;padding:12px 14px;font-size:14px;line-height:1.5;margin:0 0 18px}
+  /* transitions */
+  .screen{display:flex;flex-direction:column;flex:1;animation-duration:.34s;animation-timing-function:cubic-bezier(.3,.7,.3,1);animation-fill-mode:both}
+  .in-right{animation-name:inR}.in-left{animation-name:inL}.out-left{animation-name:outL}.out-right{animation-name:outR}
+  @keyframes inR{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:none}}
+  @keyframes inL{from{opacity:0;transform:translateX(-30px)}to{opacity:1;transform:none}}
+  @keyframes outL{from{opacity:1}to{opacity:0;transform:translateX(-30px)}}
+  @keyframes outR{from{opacity:1}to{opacity:0;transform:translateX(30px)}}
+  @media(max-width:400px){.stage{padding:8px 18px 22px}h1{font-size:24px}.res-name{font-size:26px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="brand"><span class="dot">K</span><span>Kenji Hirota · Psicólogo</span></div>
+  <div class="card">
+    <div class="hdr">
+      <button class="back hide" id="backBtn" onclick="back()">←</button>
+      <div class="progress"><i id="bar"></i></div>
+    </div>
+    <div class="stage" id="stage"></div>
+  </div>
+</div>
+
+<script>
+/* =====================================================================
+   QUIZ "Gatilho de Inércia" — Kenji Hirota
+   Modela a UX do funil da Liven, 100% conteúdo original do Kenji.
+   Data-driven: edite PROFILES / QUESTIONS / GENDER / AGE abaixo.
+   Integrações: procure "// WIRE" (e-mail -> CRM, CTA -> checkout).
+   ===================================================================== */
+
+const PROFILES = {
+  Perfeccionista:{emoji:"🎯",pensamento:"Ainda não está bom.",emocao:"Ansiedade",gatilho:"Medo de errar",comportamento:"Nunca começa ou nunca termina.",
+    desc:"Você não trava por falta de vontade — trava porque a régua que você usa é altíssima. Enquanto não parece perfeito, começar (ou terminar) vira uma ameaça. O resultado é o oposto do que você quer: adiar, correr no fim e entregar abaixo do que era capaz."},
+  Evitativo:{emoji:"🚪",pensamento:"Isso vai ser muito difícil.",emocao:"Desconforto",gatilho:"Evitação emocional",comportamento:"Foge das tarefas importantes.",
+    desc:"Pra você, a tarefa não é só uma tarefa: ela carrega um desconforto. E adiar dá um alívio imediato — que logo vira culpa. Não é preguiça, é o seu cérebro escolhendo fugir da emoção ruim agora e pagar caro depois."},
+  Impulsivo:{emoji:"⚡",pensamento:"Só cinco minutos...",emocao:"Busca por recompensa",gatilho:"Gratificação imediata",comportamento:"Troca constantemente de atividade.",
+    desc:"Seu foco é sequestrado pelo que dá prazer agora. O 'só cinco minutos' vira o dia inteiro. Você não tem falta de energia — tem excesso de estímulos competindo pela sua atenção, e o importante quase sempre perde para o urgente-prazeroso."},
+  Sobrecarregado:{emoji:"🌀",pensamento:"Nem sei por onde começar.",emocao:"Confusão",gatilho:"Excesso de informação",comportamento:"Paralisa completamente.",
+    desc:"Você tem tanta coisa na cabeça ao mesmo tempo que o cérebro simplesmente congela. Não é que você não queira começar — é que, com tudo gritando junto, ele não consegue escolher por onde. A paralisia é sintoma do excesso, não da preguiça."},
+  Indeciso:{emoji:"🧭",pensamento:"E se eu escolher errado?",emocao:"Insegurança",gatilho:"Medo da decisão",comportamento:"Pesquisa eternamente.",
+    desc:"O que te trava não é a tarefa, é a escolha. O medo de decidir errado te mantém pesquisando, comparando e adiando o 'bater o martelo'. Você confunde analisar com avançar — e o tempo passa sem a decisão sair."}
+};
+
+const GENDER = [{t:"Masculino",e:"👨"},{t:"Feminino",e:"👩"},{t:"Prefiro não dizer",e:"🧑"}];
+const AGE = [{t:"18 a 24",e:"🌱"},{t:"25 a 34",e:"☕"},{t:"35 a 44",e:"💼"},{t:"45 a 54",e:"🌿"},{t:"55 ou mais",e:"🧭"}];
+
+const QUESTIONS = [
+  {step:"Como você lida · 1 de 7",weight:1,
+   question:"Chegou um trabalho novo e importante essa semana. O que passa pela sua cabeça nos primeiros minutinhos?",
+   options:[
+     {e:"🔍",t:"Fico revirando cada detalhe antes de começar, porque tem que sair perfeito.",p:"Perfeccionista"},
+     {e:"😮‍💨",t:"Dá um desânimo na hora e prefiro deixar pra resolver depois.",p:"Evitativo"},
+     {e:"😵‍💫",t:"Travo totalmente. Fico olhando pra tela sem saber por onde começar.",p:"Sobrecarregado"},
+     {e:"🤔",t:"Fico caçando mil formas de fazer, mas não consigo escolher uma pra começar.",p:"Indeciso"},
+     {e:"🐇",t:"Penso “só uma coisinha rápida antes...” e quando vejo, o dia voou.",p:"Impulsivo"}]},
+  {step:"Como você lida · 2 de 7",weight:1,
+   question:"O prazo tá batendo na porta. O que rola com você?",
+   options:[
+     {e:"✋",t:"Prefiro entregar atrasado do que mandar algo que não esteja do meu jeito.",p:"Perfeccionista"},
+     {e:"🙈",t:"Vou empurrando com a barriga até o limite, mesmo sabendo que vou me arrepender.",p:"Evitativo"},
+     {e:"😰",t:"É tanta coisa acumulada que dá um branco geral e eu entro em pânico.",p:"Sobrecarregado"},
+     {e:"🔄",t:"Fico pesquisando mil jeitos de resolver e, quando vejo, não sobrou tempo.",p:"Indeciso"},
+     {e:"🔥",t:"Só engreno quando a água bate na bunda — a adrenalina é o que me faz andar.",p:"Impulsivo"}]},
+  {step:"Como você lida · 3 de 7",weight:1,
+   question:"Você tem dois ou três caminhos pra resolver um problema. Como decide?",
+   options:[
+     {e:"⚖️",t:"Escolho um, mas fico na dúvida o tempo todo se não era melhor o outro.",p:"Perfeccionista"},
+     {e:"😴",t:"Adio a decisão pra depois, só de pensar na dor de cabeça já cansa.",p:"Evitativo"},
+     {e:"🌀",t:"Tenho tanta opção na cabeça que acabo não escolhendo nenhuma e paraliso.",p:"Sobrecarregado"},
+     {e:"🧐",t:"Analiso tudo exaustivamente, mas na hora de bater o martelo continuo inseguro.",p:"Indeciso"},
+     {e:"🎲",t:"Escolho qualquer um rápido pra me livrar da dúvida, mas depois mudo de ideia.",p:"Impulsivo"}]},
+  {step:"O que passa aí dentro? · 4 de 7",weight:1,
+   lead:"Vamos sair um pouco da ação e olhar pro que você sente.",
+   question:"Em que momento você trava de verdade? Isso fica mais forte quando...",
+   options:[
+     {e:"😬",t:"...sinto que preciso ser perfeito e tenho medo de falhar com os outros ou comigo.",p:"Perfeccionista"},
+     {e:"🫥",t:"...a tarefa me deixa desconfortável, e fugir parece um alívio.",p:"Evitativo"},
+     {e:"🤯",t:"...tem tanta coisa acontecendo que não sei nem por onde começar.",p:"Sobrecarregado"},
+     {e:"❓",t:"...não tenho certeza absoluta de qual é o caminho certo.",p:"Indeciso"},
+     {e:"✨",t:"...aparece algo muito mais interessante e urgente pra fazer na hora.",p:"Impulsivo"}]},
+  {step:"O que passa aí dentro? · 5 de 7",weight:1,
+   question:"Depois que você deixa algo importante pra depois, qual sentimento aparece?",
+   options:[
+     {e:"😔",t:"Fico me cobrando, pensando que poderia ter feito melhor.",p:"Perfeccionista"},
+     {e:"😅",t:"Dá um alívio imediato, mas logo bate aquela culpa chata.",p:"Evitativo"},
+     {e:"🪫",t:"Sinto um cansaço mental, como se carregasse um peso que não era meu.",p:"Sobrecarregado"},
+     {e:"🔁",t:"Fico martelando se deveria ter escolhido de outro jeito.",p:"Indeciso"},
+     {e:"🫤",t:"Na hora até esqueço, mas depois o arrependimento bate rapidinho.",p:"Impulsivo"}]},
+  {step:"De coração aberto · 6 de 7",weight:1,
+   lead:"Só mais um pouquinho. Se a gente fosse bem honesto, o que mais combina com você?",
+   question:"Qual destas frases melhor descreve o seu momento hoje?",
+   options:[
+     {e:"🎯",t:"Eu me cobro demais, e isso trava tudo.",p:"Perfeccionista"},
+     {e:"🚪",t:"Eu prefiro fugir de qualquer coisa que me deixe desconfortável.",p:"Evitativo"},
+     {e:"🌀",t:"Sinto que perdi o controle de tanta coisa que tenho pra fazer.",p:"Sobrecarregado"},
+     {e:"🧭",t:"Tenho medo de escolher errado e me arrepender depois.",p:"Indeciso"},
+     {e:"⚡",t:"Eu foco no agora. O futuro que espere.",p:"Impulsivo"}]},
+  {step:"De coração aberto · 7 de 7",weight:2,
+   question:"Pra fechar: bem na lata, por que você trava?",
+   options:[
+     {e:"🎯",t:"Travo porque preciso que fique perfeito e tenho medo de errar.",p:"Perfeccionista"},
+     {e:"🚪",t:"Travo porque a tarefa incomoda e eu só quero fugir disso.",p:"Evitativo"},
+     {e:"🌀",t:"Travo porque é informação demais e me sinto perdido(a).",p:"Sobrecarregado"},
+     {e:"🧭",t:"Travo porque tenho medo de tomar a decisão errada.",p:"Indeciso"},
+     {e:"⚡",t:"Travo porque prefiro qualquer alívio imediato a encarar o trabalho.",p:"Impulsivo"}]}
+];
+
+const FLOW = [
+  {type:"intro"},
+  {type:"gender"},{type:"age"},
+  {type:"q",i:0},{type:"q",i:1},{type:"q",i:2},
+  {type:"teaser"},
+  {type:"q",i:3},{type:"q",i:4},{type:"q",i:5},{type:"q",i:6},
+  {type:"science"},
+  {type:"email"},
+  {type:"calc"},
+  {type:"reveal"},
+  {type:"result"}
+];
+const NOBACK = new Set(["intro","calc","reveal","result"]);
+
+const state = {pos:0, gender:null, age:null, answers:{}, whatsapp:""};
+const stage = document.getElementById('stage');
+const bar   = document.getElementById('bar');
+const backBtn = document.getElementById('backBtn');
+
+/* ---- scoring ---- */
+function scores(){const s={};Object.keys(PROFILES).forEach(k=>s[k]=0);
+  Object.values(state.answers).forEach(a=>s[a.p]+=a.weight);return s;}
+function computeResult(){const s=scores();let mx=-1,top=[];
+  for(const k in s){if(s[k]>mx){mx=s[k];top=[k];}else if(s[k]===mx)top.push(k);}
+  const q7=state.answers[6]&&state.answers[6].p;
+  if(top.length>1&&q7&&top.includes(q7))return q7;return top[0];}
+
+/* ---- navigation ---- */
+function setProgress(){bar.style.width=Math.round((state.pos/(FLOW.length-1))*100)+"%";
+  backBtn.classList.toggle('hide', state.pos===0 || NOBACK.has(FLOW[state.pos].type));}
+function go(next,dir){dir=dir||'fwd';const cur=stage.firstElementChild;
+  if(cur)cur.classList.add(dir==='fwd'?'out-left':'out-right');
+  setTimeout(()=>{state.pos=next;render(dir);},cur?250:0);}
+function back(){if(state.pos>0)go(state.pos-1,'back');}
+
+function render(dir){setProgress();stage.innerHTML="";
+  const node=FLOW[state.pos];const el=document.createElement('div');
+  el.className="screen "+(dir==='back'?'in-left':'in-right');
+  const V={intro:viewIntro,gender:()=>viewPick("gender"),age:()=>viewPick("age"),
+    q:()=>viewQuestion(node.i),teaser:viewTeaser,science:viewScience,email:viewEmail,
+    calc:viewCalc,reveal:viewReveal,result:viewResult};
+  el.innerHTML=V[node.type]();stage.appendChild(el);
+  if(node.type==="q")bindQuestion(node.i);
+  if(node.type==="gender")bindPick("gender");
+  if(node.type==="age")bindPick("age");
+  if(node.type==="email")bindEmail();
+  if(node.type==="calc")runCalc();
+  if(node.type==="reveal")requestAnimationFrame(()=>animBars());
+  stage.parentElement.scrollTop=0;window.scrollTo(0,0);}
+
+/* ---- views ---- */
+function viewIntro(){return `
+  <div class="grow"></div>
+  <div class="step">Diagnóstico gratuito · 2 min</div>
+  <h1>Descubra o seu <span style="color:var(--accent)">Perfil de Procrastinação</span></h1>
+  <p class="sub">Existem 5 perfis de procrastinação — e cada um é disparado por um gatilho diferente. Responda 7 perguntas rápidas, sem julgamentos, e descubra qual é o seu, o que ativa ele e como interromper esse ciclo.</p>
+  <div class="grow"></div>
+  <button class="btn" onclick="go(1)">Começar o diagnóstico <span>🚀</span></button>
+  <div class="disc">Conteúdo educacional de autoconhecimento. Não substitui avaliação, diagnóstico ou tratamento psicológico. Se você busca acompanhamento clínico, procure um psicólogo.</div>`;}
+
+function viewPick(kind){
+  const cfg=kind==="gender"?{step:"Pra começar",q:"Como você se identifica?",list:GENDER}
+    :{step:"Quase lá",q:"Qual a sua idade?",list:AGE};
+  const cur=state[kind];
+  const opts=cfg.list.map((o,i)=>`<button class="opt big${cur===o.t?' sel':''}" data-i="${i}">
+    <span class="em">${o.e}</span><span class="txt">${o.t}</span></button>`).join("");
+  return `<div class="grow"></div><div class="step">${cfg.step}</div>
+    <h2>${cfg.q}</h2><div class="options">${opts}</div><div class="grow"></div>`;}
+function bindPick(kind){const list=kind==="gender"?GENDER:AGE;
+  stage.querySelectorAll('.opt').forEach(b=>b.addEventListener('click',()=>{
+    if(stage.querySelector('.opt.sel:not([data-i="'+b.dataset.i+'"])')){}
+    state[kind]=list[+b.dataset.i].t;
+    stage.querySelectorAll('.opt').forEach(x=>x.classList.remove('sel'));
+    b.classList.add('sel');setTimeout(()=>go(state.pos+1),320);}));}
+
+function viewQuestion(i){const q=QUESTIONS[i];const sel=state.answers[i]&&state.answers[i].idx;
+  const opts=q.options.map((o,idx)=>`<button class="opt${sel===idx?' sel':''}" data-i="${idx}">
+    <span class="em">${o.e}</span><span class="txt">${o.t}</span></button>`).join("");
+  return `<div class="step">${q.step}</div>${q.lead?`<p class="lead">${q.lead}</p>`:""}
+    <h2>${q.question}</h2><div class="options">${opts}</div><div class="grow"></div>`;}
+function bindQuestion(i){const q=QUESTIONS[i];
+  stage.querySelectorAll('.opt').forEach(b=>b.addEventListener('click',()=>{
+    if(stage.querySelector('.opt.sel'))return;
+    b.classList.add('sel');const idx=+b.dataset.i;
+    state.answers[i]={p:q.options[idx].p,weight:q.weight,idx};
+    setTimeout(()=>go(state.pos+1),340);}));}
+
+function viewTeaser(){return `<div class="grow"></div><div class="center">
+  <div class="teaser-ico">🧠</div>
+  <h2>Isso não é preguiça — é um padrão.</h2>
+  <p class="sub">A procrastinação quase nunca é falta de vontade. Ela nasce de um ciclo automático entre o que você <b>sente</b>, o que você <b>pensa</b> e o que você <b>faz</b>. A boa notícia: padrão aprendido é padrão que pode ser mudado. As próximas perguntas revelam o seu.</p></div>
+  <div class="grow"></div><button class="btn" onclick="go(${state.pos+1})">Continuar <span>→</span></button>`;}
+
+function viewScience(){return `<div class="grow"></div><div class="center">
+  <div class="teaser-ico">🔬</div>
+  <h2>Um método baseado em ciência do comportamento</h2>
+  <p class="sub">Seu diagnóstico usa o modelo da Terapia Cognitivo-Comportamental (TCC) — a mesma abordagem que a pesquisa mostra ter os melhores resultados com procrastinação. Sem achismo, sem “dica genérica de produtividade”.</p></div>
+  <div class="grow"></div><button class="btn" onclick="go(${state.pos+1})">Continuar <span>→</span></button>`;}
+
+function viewEmail(){return `<div class="grow"></div><div class="step">💬 Falta pouco</div>
+  <h2>Pra qual WhatsApp enviamos o seu diagnóstico completo?</h2>
+  <p class="sub">Seu resultado personalizado — com o seu perfil, o seu gatilho e o próximo passo — chega direto no seu WhatsApp.</p>
+  <div class="phone"><span class="ddi">🇧🇷 +55</span>
+    <input class="input" id="wa" type="tel" inputmode="numeric" placeholder="(11) 99999-9999" autocomplete="tel-national" /></div>
+  <div class="grow"></div>
+  <button class="btn" id="emailBtn" disabled onclick="submitEmail()">Ver o meu perfil <span>👀</span></button>
+  <div class="disc">Você recebe o diagnóstico no WhatsApp. Sem spam — saia quando quiser.</div>`;}
+function fmtPhone(v){v=(v||"").replace(/\D/g,'').slice(0,11);
+  if(v.length<=2)return v.length?'('+v:'';
+  if(v.length<=6)return '('+v.slice(0,2)+') '+v.slice(2);
+  if(v.length<=10)return '('+v.slice(0,2)+') '+v.slice(2,6)+'-'+v.slice(6);
+  return '('+v.slice(0,2)+') '+v.slice(2,7)+'-'+v.slice(7);}
+function bindEmail(){const inp=document.getElementById('wa'),btn=document.getElementById('emailBtn');
+  const ok=v=>v.replace(/\D/g,'').length>=10;
+  if(state.whatsapp){inp.value=fmtPhone(state.whatsapp);btn.disabled=!ok(inp.value);}
+  inp.addEventListener('input',()=>{inp.value=fmtPhone(inp.value);btn.disabled=!ok(inp.value);});
+  inp.addEventListener('keydown',e=>{if(e.key==='Enter'&&!btn.disabled)submitEmail();});}
+function submitEmail(){state.whatsapp=document.getElementById('wa').value.replace(/\D/g,'');
+  // WIRE: envie {whatsapp:'+55'+state.whatsapp, gender, age, scores} pro seu CRM / API do WhatsApp
+  console.log('lead WhatsApp:','+55'+state.whatsapp,state.gender,state.age,scores());
+  go(state.pos+1);}
+
+function viewCalc(){const steps=["Analisando seus comportamentos","Mapeando seus pensamentos automáticos","Identificando sua emoção dominante","Localizando o seu gatilho principal","Montando o seu diagnóstico"];
+  return `<div class="grow"></div><div class="center">
+    <div class="ring"><svg width="112" height="112" viewBox="0 0 112 112">
+      <circle cx="56" cy="56" r="48" fill="none" stroke="#eeecf6" stroke-width="10"/>
+      <circle id="ringFill" cx="56" cy="56" r="48" fill="none" stroke="url(#g)" stroke-width="10" stroke-linecap="round" stroke-dasharray="302" stroke-dashoffset="302"/>
+      <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6d4bf5"/><stop offset="1" stop-color="#9068ff"/></linearGradient></defs></svg>
+      <div class="pct" id="pct">0%</div></div>
+    <div class="checklist" id="checklist">${steps.map((s,i)=>`<div class="cl" data-i="${i}"><span class="mk">✓</span><span>${s}</span></div>`).join("")}</div>
+    </div><div class="grow"></div>`;}
+function runCalc(){const fill=document.getElementById('ringFill'),pct=document.getElementById('pct');
+  const cls=[...document.querySelectorAll('.cl')];const DUR=3600,C=302;let start=null;
+  function frame(t){if(!start)start=t;const p=Math.min(1,(t-start)/DUR);
+    const e=p<.5?2*p*p:1-Math.pow(-2*p+2,2)/2;
+    fill.style.strokeDashoffset=C*(1-e);pct.textContent=Math.round(e*100)+"%";
+    cls.forEach((c,i)=>{if(e>=(i+1)/cls.length-0.02)c.classList.add('on');});
+    if(p<1)requestAnimationFrame(frame);else setTimeout(()=>go(state.pos+1),420);}
+  requestAnimationFrame(frame);}
+
+function pctScores(){const s=scores();const tot=Object.values(s).reduce((a,b)=>a+b,0)||1;
+  return Object.keys(s).map(k=>({k,v:s[k],pct:Math.round(s[k]/tot*100)})).sort((a,b)=>b.v-a.v);}
+function viewReveal(){const key=computeResult();const pf=PROFILES[key];const rows=pctScores();
+  const bars=rows.map((r,i)=>`<div class="barrow${i===0?' top':''}">
+    <div class="bl"><span>${PROFILES[r.k].emoji} O ${r.k}</span><span class="pc">${r.pct}%</span></div>
+    <div class="track"><i data-w="${r.pct}"></i></div></div>`).join("");
+  return `<div class="grow"></div><div class="center">
+    <div class="rev-ico">${pf.emoji}</div>
+    <div class="res-badge">Seu perfil predominante</div>
+    <div class="res-name">O ${key}</div></div>
+    <div class="bars">${bars}</div>
+    <div class="grow"></div>
+    <button class="btn" onclick="go(${state.pos+1})">Ver o meu diagnóstico completo <span>→</span></button>`;}
+function animBars(){document.querySelectorAll('.track > i').forEach(i=>i.style.width=i.dataset.w+"%");}
+
+function cycleHTML(pf){const n=[["Gatilho",pf.gatilho],["Pensamento",'"'+pf.pensamento+'"'],["Emoção",pf.emocao],["Comportamento",pf.comportamento]];
+  return `<div class="cyc">${n.map((x,i)=>`<div class="row"><div class="n">${i+1}</div><div><div class="k">${x[0]}</div><div class="v">${x[1]}</div></div></div>${i<3?'<div class="arr">↓</div>':'<div class="arr">↩ e o ciclo recomeça</div>'}`).join("")}</div>`;}
+function viewResult(){const key=computeResult();const pf=PROFILES[key];
+  return `<div class="center"><div style="font-size:46px;margin:8px 0 6px">${pf.emoji}</div>
+    <div class="res-badge">Seu Perfil de Procrastinação</div><div class="res-name">O ${key}</div></div>
+    <p class="res-desc">${pf.desc}</p>
+    <div class="facts">
+      <div class="fact"><span class="emo">🎯</span><div><div class="k">Gatilho principal</div><div class="v">${pf.gatilho}</div></div></div>
+      <div class="fact"><span class="emo">💭</span><div><div class="k">Pensamento automático</div><div class="v">"${pf.pensamento}"</div></div></div>
+      <div class="fact"><span class="emo">❤️</span><div><div class="k">Emoção dominante</div><div class="v">${pf.emocao}</div></div></div></div>
+    <h3 class="sec">O ciclo normalmente acontece assim</h3>${cycleHTML(pf)}
+    <div class="offer"><h3 class="sec" style="margin-top:0">Seu próximo passo</h3>
+      <p>Seu diagnóstico mostrou <b>O QUE</b> acontece. O <b>Protocolo Anti-Procrastinação</b> foi criado pra te ensinar <b>COMO</b> interromper esse padrão — com um plano específico pro perfil <b>${key}</b>: exercícios práticos pra reconhecer seu gatilho, quebrar o ciclo automático e voltar a agir com consistência.</p>
+      <div class="good">✅ Isso não é a sua personalidade. É apenas um padrão aprendido — e padrões podem ser modificados.</div>
+      <button class="btn" onclick="goToOffer('${key}')">Quero o meu Protocolo Anti-Procrastinação <span>→</span></button></div>
+    <div style="height:8px"></div>`;}
+function goToOffer(key){
+  // WIRE: window.location.href='https://SEU-CHECKOUT?perfil='+encodeURIComponent(key);
+  console.log('CTA -> checkout | perfil:',key,'| whatsapp:',state.whatsapp);
+  alert('Aqui entra o checkout do Protocolo Anti-Procrastinação (perfil: '+key+').');}
+
+render();
+</script>
+</body>
+</html>

@@ -19,13 +19,13 @@
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Helvetica,Arial,sans-serif;
     color:var(--ink); position:relative; overflow-x:hidden;
     background:linear-gradient(165deg,var(--bg1),var(--bg2));
-    min-height:100dvh; display:flex; align-items:center; justify-content:center; padding:16px;
+    min-height:100dvh; display:flex; flex-direction:column; align-items:center; padding:16px;
   }
   /* background blobs */
   body::before,body::after{content:"";position:fixed;border-radius:50%;filter:blur(70px);opacity:.5;z-index:0}
   body::before{width:340px;height:340px;background:#c9b8ff;top:-90px;left:-90px}
   body::after{width:320px;height:320px;background:#a9c7ff;bottom:-100px;right:-80px}
-  .app{width:100%;max-width:452px;position:relative;z-index:1}
+  .app{width:100%;max-width:452px;position:relative;z-index:1;margin:auto 0}
   .brand{display:flex;align-items:center;gap:9px;justify-content:center;margin-bottom:12px;color:#5a5872;font-size:13px;font-weight:600}
   .brand .dot{width:26px;height:26px;border-radius:9px;background:linear-gradient(140deg,var(--accent),var(--accent-2));color:#fff;display:grid;place-items:center;font-weight:800;font-size:13px}
   .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;position:relative;min-height:560px;display:flex;flex-direction:column}
@@ -270,11 +270,10 @@ function render(dir){setProgress();stage.innerHTML="";
 function viewIntro(){return `
   <div class="grow"></div>
   <div class="step">Diagnóstico gratuito · 2 min</div>
-  <h1>Descubra o seu <span style="color:var(--accent)">Perfil de Procrastinação</span></h1>
-  <p class="sub">Existem 5 perfis de procrastinação — e cada um é disparado por um gatilho diferente. Responda 7 perguntas rápidas, sem julgamentos, e descubra qual é o seu, o que ativa ele e como interromper esse ciclo.</p>
+  <h1>Descubra o seu <span style="color:var(--accent)">Perfil Procrastinador</span></h1>
+  <p class="sub">Existem 5 perfis de procrastinação. Responda essas 7 perguntas rápidas e descubra qual é o seu e como interromper esse ciclo.</p>
   <div class="grow"></div>
-  <button class="btn" onclick="go(1)">Começar o diagnóstico <span>🚀</span></button>
-  <div class="disc">Conteúdo educacional de autoconhecimento. Não substitui avaliação, diagnóstico ou tratamento psicológico. Se você busca acompanhamento clínico, procure um psicólogo.</div>`;}
+  <button class="btn" onclick="go(1)">Começar o diagnóstico <span>🚀</span></button>`;}
 
 function viewPick(kind){
   const cfg=kind==="gender"?{step:"Pra começar",q:"Como você se identifica?",list:GENDER}
@@ -305,8 +304,8 @@ function bindQuestion(i){const q=QUESTIONS[i];
 
 function viewTeaser(){return `<div class="grow"></div><div class="center">
   <div class="teaser-ico">🧠</div>
-  <h2>Isso não é preguiça — é um padrão.</h2>
-  <p class="sub">A procrastinação quase nunca é falta de vontade. Ela nasce de um ciclo automático entre o que você <b>sente</b>, o que você <b>pensa</b> e o que você <b>faz</b>. A boa notícia: padrão aprendido é padrão que pode ser mudado. As próximas perguntas revelam o seu.</p></div>
+  <h2>Você NÃO é preguiçoso. Seu cérebro é que te engana!</h2>
+  <p class="sub">A procrastinação nasce de um ciclo automático entre <b>sentimentos, pensamentos e ações.</b> Existem 5 padrões de procrastinador. A boa notícia: quando você descobre o seu padrão, fica muito mais fácil vencê-la.</p></div>
   <div class="grow"></div><button class="btn" onclick="go(${state.pos+1})">Continuar <span>→</span></button>`;}
 
 function viewScience(){return `<div class="grow"></div><div class="center">

@@ -84,6 +84,7 @@
   .rev-ico{width:96px;height:96px;border-radius:50%;background:var(--accent-soft);display:grid;place-items:center;font-size:48px;margin:10px auto 14px;box-shadow:0 0 0 8px rgba(109,75,245,.07)}
   .res-badge{display:inline-block;font-size:11.5px;font-weight:800;color:var(--accent);background:var(--accent-soft);padding:6px 13px;border-radius:999px;letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px}
   .res-name{font-size:30px;font-weight:880;letter-spacing:-.6px;margin:0 0 6px;line-height:1.1}
+  .vsl-h1{font-size:21px;line-height:1.28;font-weight:850;text-align:center;letter-spacing:-.3px;margin:6px 0 0}
   .bars{display:flex;flex-direction:column;gap:11px;margin:22px 0 6px;text-align:left}
   .barrow .bl{display:flex;justify-content:space-between;font-size:13px;font-weight:650;margin-bottom:5px}
   .barrow .bl .pc{color:var(--muted);font-weight:600}
@@ -233,14 +234,38 @@ const FLOW = [
   {type:"email"},
   {type:"calc"},
   {type:"reveal"},
-  {type:"result"}
+  {type:"result"},
+  {type:"vsl"}
 ];
-const NOBACK = new Set(["intro","calc","reveal","result"]);
+const NOBACK = new Set(["intro","calc","reveal","result","vsl"]);
 
 const state = {pos:0, gender:null, age:null, answers:{}, whatsapp:"", utm:{}};
 try{ state.utm = Object.fromEntries(new URLSearchParams(location.search)); }catch(e){}
 // Meta Pixel — dispara evento com segurança (não quebra se o pixel for bloqueado)
 function fb(){ try{ if(window.fbq) window.fbq.apply(window, arguments); }catch(e){} }
+
+// ---- Vturb (VSL por perfil) ----
+const VTURB_ACCOUNT='2e0521c1-9184-4e71-bfe9-8238b40e8cc8';
+const VTURB={Perfeccionista:'6a57901773ddc9ea5607f587',Evitativo:'6a5903c447777a85b175e995',Impulsivo:'6a590437e33115337f2794de',Sobrecarregado:'6a59078325510fe0a9241127',Indeciso:'6a590cbea7828d781085647e'};
+const _vturbLoaded={};
+function mountVturb(key){
+  const pid=VTURB[key], mount=document.getElementById('vturb-mount');
+  if(!pid||!mount) return;
+  mount.innerHTML='<vturb-smartplayer id="vid-'+pid+'" style="display:block;margin:0 auto;width:100%;max-width:400px"><div class="vturb-player-placeholder" style="position:relative;width:100%;padding:177.7778% 0 0;z-index:0;background-color:black"></div></vturb-smartplayer>';
+  if(!_vturbLoaded[pid]){
+    const s=document.createElement('script'); s.async=true;
+    s.src='https://scripts.converteai.net/'+VTURB_ACCOUNT+'/players/'+pid+'/v4/player.js';
+    document.head.appendChild(s); _vturbLoaded[pid]=true;
+  }
+}
+function viewVsl(){
+  const key=computeResult();
+  return `<div class="grow" style="flex:.35 0 auto"></div>
+    <h1 class="vsl-h1">O SEU PERFIL PROCRASTINADOR É O <span style="color:var(--accent)">${key.toUpperCase()}</span>. DESCUBRA COMO NEUTRALIZÁ-LO 👇</h1>
+    <div id="vturb-mount" style="margin:20px 0"></div>
+    <button class="btn" onclick="goToOffer('${key}')">Quero o meu Protocolo Anti-Procrastinação <span>→</span></button>
+    <div class="grow"></div>`;
+}
 const stage = document.getElementById('stage');
 const bar   = document.getElementById('bar');
 const backBtn = document.getElementById('backBtn');
@@ -266,7 +291,7 @@ function render(dir){setProgress();stage.innerHTML="";
   el.className="screen "+(dir==='back'?'in-left':'in-right');
   const V={intro:viewIntro,gender:()=>viewPick("gender"),age:()=>viewPick("age"),
     q:()=>viewQuestion(node.i),teaser:viewTeaser,science:viewScience,email:viewEmail,
-    calc:viewCalc,reveal:viewReveal,result:viewResult};
+    calc:viewCalc,reveal:viewReveal,result:viewResult,vsl:viewVsl};
   el.innerHTML=V[node.type]();stage.appendChild(el);
   if(node.type==="q")bindQuestion(node.i);
   if(node.type==="gender")bindPick("gender");
@@ -275,6 +300,7 @@ function render(dir){setProgress();stage.innerHTML="";
   if(node.type==="calc")runCalc();
   if(node.type==="reveal")requestAnimationFrame(()=>animBars());
   if(node.type==="result")fb('track','ViewContent',{content_name:'Resultado: '+computeResult()});
+  if(node.type==="vsl"){ mountVturb(computeResult()); fb('trackCustom','VSLView',{content_name:computeResult()}); }
   stage.parentElement.scrollTop=0;window.scrollTo(0,0);}
 
 /* ---- views ---- */
@@ -397,9 +423,9 @@ function viewResult(){const key=computeResult();const pf=PROFILES[key];
       <div class="fact"><span class="emo">❤️</span><div><div class="k">Emoção dominante</div><div class="v">${pf.emocao}</div></div></div></div>
     <h3 class="sec">O ciclo normalmente acontece assim</h3>${cycleHTML(pf)}
     <div class="offer"><h3 class="sec" style="margin-top:0">Seu próximo passo</h3>
-      <p>Seu diagnóstico mostrou <b>O QUE</b> acontece. O <b>Protocolo Anti-Procrastinação</b> foi criado pra te ensinar <b>COMO</b> interromper esse padrão — com um plano específico pro perfil <b>${key}</b>: exercícios práticos pra reconhecer seu gatilho, quebrar o ciclo automático e voltar a agir com consistência.</p>
+      <p>Seu diagnóstico mostrou <b>O QUE</b> te trava. Agora o Kenji vai te mostrar exatamente <b>COMO neutralizar</b> o padrão do <b>${key}</b> — no vídeo do próximo passo.</p>
       <div class="good">✅ Isso não é a sua personalidade. É apenas um padrão aprendido — e padrões podem ser modificados.</div>
-      <button class="btn" onclick="goToOffer('${key}')">Quero o meu Protocolo Anti-Procrastinação <span>→</span></button></div>
+      <button class="btn" onclick="go(FLOW.findIndex(f=>f.type==='vsl'))">Descobrir como neutralizar o meu perfil <span>→</span></button></div>
     <div style="height:8px"></div>`;}
 function goToOffer(key){
   fb('track','InitiateCheckout',{content_name:'Protocolo '+key});

@@ -117,6 +117,14 @@
   @keyframes outR{from{opacity:1}to{opacity:0;transform:translateX(30px)}}
   @media(max-width:400px){.stage{padding:8px 18px 22px}h1{font-size:24px}.res-name{font-size:26px}}
 </style>
+<!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+fbq('init','1033317898699732');
+fbq('track','PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1033317898699732&ev=PageView&noscript=1"/></noscript>
+<!-- End Meta Pixel Code -->
 </head>
 <body>
 <div class="app">
@@ -231,6 +239,8 @@ const NOBACK = new Set(["intro","calc","reveal","result"]);
 
 const state = {pos:0, gender:null, age:null, answers:{}, whatsapp:"", utm:{}};
 try{ state.utm = Object.fromEntries(new URLSearchParams(location.search)); }catch(e){}
+// Meta Pixel — dispara evento com segurança (não quebra se o pixel for bloqueado)
+function fb(){ try{ if(window.fbq) window.fbq.apply(window, arguments); }catch(e){} }
 const stage = document.getElementById('stage');
 const bar   = document.getElementById('bar');
 const backBtn = document.getElementById('backBtn');
@@ -264,6 +274,7 @@ function render(dir){setProgress();stage.innerHTML="";
   if(node.type==="email")bindEmail();
   if(node.type==="calc")runCalc();
   if(node.type==="reveal")requestAnimationFrame(()=>animBars());
+  if(node.type==="result")fb('track','ViewContent',{content_name:'Resultado: '+computeResult()});
   stage.parentElement.scrollTop=0;window.scrollTo(0,0);}
 
 /* ---- views ---- */
@@ -273,7 +284,7 @@ function viewIntro(){return `
   <h1>Descubra o seu <span style="color:var(--accent)">Perfil Procrastinador</span></h1>
   <p class="sub">Existem 5 perfis de procrastinação. Responda essas 7 perguntas rápidas e descubra qual é o seu e como interromper esse ciclo.</p>
   <div class="grow"></div>
-  <button class="btn" onclick="go(1)">Começar o diagnóstico <span>🚀</span></button>`;}
+  <button class="btn" onclick="fb('trackCustom','QuizStart');go(1)">Começar o diagnóstico <span>🚀</span></button>`;}
 
 function viewPick(kind){
   const cfg=kind==="gender"?{step:"Pra começar",q:"Como você se identifica?",list:GENDER}
@@ -338,6 +349,7 @@ function submitEmail(){state.whatsapp=document.getElementById('wa').value.replac
   const payload={whatsapp:'+55'+state.whatsapp,gender:state.gender,age:state.age,
     profile:computeResult(),scores:scores(),answers:answersExport(),utm:state.utm};
   fetch('/api/lead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).catch(()=>{});
+  fb('track','Lead',{content_name:payload.profile});
   go(state.pos+1);}
 
 function viewCalc(){const steps=["Analisando seus comportamentos","Mapeando seus pensamentos automáticos","Identificando sua emoção dominante","Localizando o seu gatilho principal","Montando o seu diagnóstico"];
@@ -390,6 +402,7 @@ function viewResult(){const key=computeResult();const pf=PROFILES[key];
       <button class="btn" onclick="goToOffer('${key}')">Quero o meu Protocolo Anti-Procrastinação <span>→</span></button></div>
     <div style="height:8px"></div>`;}
 function goToOffer(key){
+  fb('track','InitiateCheckout',{content_name:'Protocolo '+key});
   // WIRE: window.location.href='https://SEU-CHECKOUT?perfil='+encodeURIComponent(key);
   console.log('CTA -> checkout | perfil:',key,'| whatsapp:',state.whatsapp);
   alert('Aqui entra o checkout do Protocolo Anti-Procrastinação (perfil: '+key+').');}

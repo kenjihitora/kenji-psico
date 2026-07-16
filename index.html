@@ -226,6 +226,7 @@ const QUESTIONS = [
 
 const FLOW = [
   {type:"intro"},
+  {type:"name"},
   {type:"gender"},{type:"age"},
   {type:"q",i:0},{type:"q",i:1},{type:"q",i:2},
   {type:"teaser"},
@@ -239,7 +240,7 @@ const FLOW = [
 ];
 const NOBACK = new Set(["intro","calc","reveal","result","vsl"]);
 
-const state = {pos:0, gender:null, age:null, answers:{}, whatsapp:"", utm:{}};
+const state = {pos:0, name:"", gender:null, age:null, answers:{}, whatsapp:"", utm:{}};
 try{ state.utm = Object.fromEntries(new URLSearchParams(location.search)); }catch(e){}
 // Meta Pixel — dispara evento com segurança (não quebra se o pixel for bloqueado)
 function fb(){ try{ if(window.fbq) window.fbq.apply(window, arguments); }catch(e){} }
@@ -288,11 +289,12 @@ function back(){if(state.pos>0)go(state.pos-1,'back');}
 function render(dir){setProgress();stage.innerHTML="";
   const node=FLOW[state.pos];const el=document.createElement('div');
   el.className="screen "+(dir==='back'?'in-left':'in-right');
-  const V={intro:viewIntro,gender:()=>viewPick("gender"),age:()=>viewPick("age"),
+  const V={intro:viewIntro,name:viewName,gender:()=>viewPick("gender"),age:()=>viewPick("age"),
     q:()=>viewQuestion(node.i),teaser:viewTeaser,science:viewScience,email:viewEmail,
     calc:viewCalc,reveal:viewReveal,result:viewResult,vsl:viewVsl};
   el.innerHTML=V[node.type]();stage.appendChild(el);
   if(node.type==="q")bindQuestion(node.i);
+  if(node.type==="name")bindName();
   if(node.type==="gender")bindPick("gender");
   if(node.type==="age")bindPick("age");
   if(node.type==="email")bindEmail();
@@ -310,6 +312,18 @@ function viewIntro(){return `
   <p class="sub">Existem 5 perfis de procrastinação. Responda essas 7 perguntas rápidas e descubra qual é o seu e como interromper esse ciclo.</p>
   <div class="grow"></div>
   <button class="btn" onclick="fb('trackCustom','QuizStart');go(1)">Começar o diagnóstico <span>🚀</span></button>`;}
+
+function viewName(){return `<div class="grow"></div><div class="step">Pra começar</div>
+  <h2>Como podemos te chamar?</h2>
+  <p class="sub">Seu primeiro nome, pra deixar o seu diagnóstico mais pessoal.</p>
+  <input class="input" id="nm" type="text" placeholder="Seu primeiro nome" autocomplete="given-name" value="${(state.name||'').replace(/"/g,'&quot;')}" />
+  <div class="grow"></div>
+  <button class="btn" id="nmBtn" ${state.name?'':'disabled'} onclick="submitName()">Continuar <span>→</span></button>`;}
+function bindName(){const inp=document.getElementById('nm'),btn=document.getElementById('nmBtn');
+  const ok=v=>v.trim().length>=2;
+  inp.addEventListener('input',()=>btn.disabled=!ok(inp.value));
+  inp.addEventListener('keydown',e=>{if(e.key==='Enter'&&!btn.disabled)submitName();});}
+function submitName(){state.name=document.getElementById('nm').value.trim();go(state.pos+1);}
 
 function viewPick(kind){
   const cfg=kind==="gender"?{step:"Pra começar",q:"Como você se identifica?",list:GENDER}
@@ -371,7 +385,7 @@ function bindEmail(){const inp=document.getElementById('wa'),btn=document.getEle
 function answersExport(){return QUESTIONS.map((q,i)=>{const a=state.answers[i];
   return a?{q:q.question,a:q.options[a.idx].t,perfil:a.p}:null;}).filter(Boolean);}
 function submitEmail(){state.whatsapp=document.getElementById('wa').value.replace(/\D/g,'');
-  const payload={whatsapp:'+55'+state.whatsapp,gender:state.gender,age:state.age,
+  const payload={name:state.name,whatsapp:'+55'+state.whatsapp,gender:state.gender,age:state.age,
     profile:computeResult(),scores:scores(),answers:answersExport(),utm:state.utm};
   fetch('/api/lead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).catch(()=>{});
   fb('track','Lead',{content_name:payload.profile});

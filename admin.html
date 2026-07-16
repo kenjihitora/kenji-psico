@@ -140,7 +140,7 @@ function filtered(){
   return LEADS.filter(l=>{
     if(fp && l.profile!==fp) return false;
     if(fs && l.status!==fs) return false;
-    if(q){ const hay=(l.whatsapp+' '+l.profile+' '+JSON.stringify(l.utm||{})).toLowerCase(); if(!hay.includes(q)) return false; }
+    if(q){ const hay=(l.whatsapp+' '+(l.name||'')+' '+l.profile+' '+JSON.stringify(l.utm||{})).toLowerCase(); if(!hay.includes(q)) return false; }
     return true;
   });
 }
@@ -150,7 +150,7 @@ function renderTable(){
   const tbl=document.getElementById('tbl');
   if(!rows.length){ tbl.innerHTML='<div class="empty">Nenhum lead ainda. Assim que alguém terminar o quiz, aparece aqui. 👀</div>'; return; }
   tbl.innerHTML = `<table><thead><tr>
-    <th>Data</th><th>WhatsApp</th><th>Perfil</th><th class="hide-sm">Origem</th><th>Status</th><th></th>
+    <th>Data</th><th>Nome</th><th>WhatsApp</th><th>Perfil</th><th class="hide-sm">Origem</th><th>Status</th><th></th>
   </tr></thead><tbody>${rows.map(rowHTML).join('')}</tbody></table>`;
 }
 function rowHTML(l){
@@ -158,6 +158,7 @@ function rowHTML(l){
   const origem = (l.utm && (l.utm.utm_campaign||l.utm.utm_source)) ? esc(l.utm.utm_campaign||l.utm.utm_source) : '—';
   return `<tr>
     <td style="color:var(--muted);white-space:nowrap">${fmtDate(l.created_at)}</td>
+    <td style="font-weight:650">${esc(l.name)||'—'}</td>
     <td><a class="wa" href="https://wa.me/${wa}" target="_blank" rel="noopener">💬 ${esc(l.whatsapp)}</a></td>
     <td>${l.profile?`<span class="pill">${EMO[l.profile]||''} ${esc(l.profile)}</span>`:'—'}</td>
     <td class="hide-sm" style="color:var(--muted);font-size:12.5px">${origem}</td>
@@ -188,6 +189,7 @@ function openModal(id){
     <button class="x" onclick="closeModal()">✕</button>
     <h2>${EMO[l.profile]||''} O ${esc(l.profile)||'—'}</h2>
     <div class="sub">${fmtDate(l.created_at)}</div>
+    <div class="kv"><div class="k">Nome</div><div>${esc(l.name)||'—'}</div></div>
     <div class="kv"><div class="k">WhatsApp</div><div><a class="wa" href="https://wa.me/${waDigits(l.whatsapp)}" target="_blank" rel="noopener">${esc(l.whatsapp)}</a></div></div>
     <div class="kv"><div class="k">Gênero / Idade</div><div>${esc(l.gender)||'—'} · ${esc(l.age)||'—'}</div></div>
     <div class="kv"><div class="k">Status</div><div>${esc(l.status)}</div></div>
@@ -209,10 +211,10 @@ async function logout(){ await fetch('/api/logout',{method:'POST'}); renderLogin
 
 function doExport(){
   const rows=filtered();
-  const cols=['data','whatsapp','perfil','genero','idade','status','utm_source','utm_campaign'];
+  const cols=['data','nome','whatsapp','perfil','genero','idade','status','utm_source','utm_campaign'];
   const csv=[cols.join(',')].concat(rows.map(l=>{
     const u=l.utm||{};
-    return [fmtDate(l.created_at),l.whatsapp,l.profile,l.gender,l.age,l.status,u.utm_source||'',u.utm_campaign||'']
+    return [fmtDate(l.created_at),l.name,l.whatsapp,l.profile,l.gender,l.age,l.status,u.utm_source||'',u.utm_campaign||'']
       .map(v=>`"${String(v==null?'':v).replace(/"/g,'""')}"`).join(',');
   })).join('\n');
   const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'});

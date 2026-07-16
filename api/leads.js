@@ -6,7 +6,7 @@ module.exports = async (req, res) => {
   try {
     await ensureTable();
     const rows = await sql`
-      SELECT id, created_at, whatsapp, gender, age, profile, scores, answers, utm, status
+      SELECT id, created_at, name, whatsapp, gender, age, profile, scores, answers, utm, status
       FROM leads ORDER BY created_at DESC LIMIT 2000`;
     res.status(200).json({ leads: rows });
   } catch (e) {

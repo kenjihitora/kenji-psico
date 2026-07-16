@@ -194,10 +194,16 @@ function openModal(id){
     <h3 style="margin:18px 0 4px;font-size:13px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted)">Respostas</h3>
     ${ans||'<div class="sub">—</div>'}
     <h3 style="margin:18px 0 4px;font-size:13px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted)">Origem (UTM)</h3>
-    ${utm}`;
+    ${utm}
+    <div style="margin-top:20px;padding-top:14px;border-top:1px solid var(--line);text-align:right"><button class="link" style="color:#d63b4a" onclick="delLead(${l.id})">🗑️ Excluir este lead</button></div>`;
   document.getElementById('modalbg').classList.add('on');
 }
 function closeModal(){document.getElementById('modalbg').classList.remove('on');}
+async function delLead(id){
+  if(!confirm('Excluir este lead? Essa ação não tem volta.')) return;
+  const r=await fetch('/api/delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})});
+  if(r.ok){ LEADS=LEADS.filter(x=>x.id!==id); closeModal(); renderDash(); } else { alert('Não consegui excluir o lead.'); }
+}
 
 async function logout(){ await fetch('/api/logout',{method:'POST'}); renderLogin(); }
 

@@ -271,6 +271,7 @@ function viewVsl(){
 const stage = document.getElementById('stage');
 const bar   = document.getElementById('bar');
 const backBtn = document.getElementById('backBtn');
+const brand = document.querySelector('.brand');
 
 /* ---- scoring ---- */
 function scores(){const s={};Object.keys(PROFILES).forEach(k=>s[k]=0);
@@ -289,7 +290,7 @@ function go(next,dir){dir=dir||'fwd';const cur=stage.firstElementChild;
 function back(){if(state.pos>0)go(state.pos-1,'back');}
 
 function render(dir){setProgress();stage.innerHTML="";
-  const node=FLOW[state.pos];const el=document.createElement('div');
+  const node=FLOW[state.pos];brand.style.display=node.type==='intro'?'none':'';const el=document.createElement('div');
   el.className="screen "+(dir==='back'?'in-left':'in-right');
   const V={intro:viewIntro,name:viewName,gender:()=>viewPick("gender"),age:()=>viewPick("age"),
     q:()=>viewQuestion(node.i),teaser:viewTeaser,science:viewScience,email:viewEmail,
@@ -309,6 +310,10 @@ function render(dir){setProgress();stage.innerHTML="";
 /* ---- views ---- */
 function viewIntro(){return `
   <div class="grow"></div>
+  <div style="text-align:center;margin-bottom:24px">
+    <img src="/logo.png" alt="Kenji Hirota" style="width:190px;max-width:64%;height:auto;display:inline-block"/>
+    <div style="font-size:12px;font-weight:700;letter-spacing:1.5px;color:#8a88a0;margin-top:2px">CRP 18/09596</div>
+  </div>
   <div class="step">Diagnóstico gratuito · 2 min</div>
   <h1>Descubra o seu <span style="color:var(--accent)">Perfil Procrastinador</span></h1>
   <p class="sub">Existem 5 perfis de procrastinação. Responda essas 7 perguntas rápidas e descubra qual é o seu e como interromper esse ciclo.</p>

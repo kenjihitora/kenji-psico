@@ -247,6 +247,11 @@ try{ state.utm = Object.fromEntries(new URLSearchParams(location.search)); }catc
 // Meta Pixel — dispara evento com segurança (não quebra se o pixel for bloqueado)
 function fb(){ try{ if(window.fbq) window.fbq.apply(window, arguments); }catch(e){} }
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+// tracking de funil (para o painel de analytics)
+const SESSION_ID=(function(){try{return (window.crypto&&crypto.randomUUID&&crypto.randomUUID())||('s'+Date.now()+Math.random().toString(36).slice(2));}catch(e){return 's'+Date.now();}})();
+let _maxStep=-1;
+function track(pos){ if(pos<=_maxStep)return; _maxStep=pos;
+  try{ fetch('/api/track',{method:'POST',keepalive:true,headers:{'Content-Type':'application/json'},body:JSON.stringify({session:SESSION_ID,step:pos,utm:state.utm})}).catch(()=>{}); }catch(e){} }
 
 // ---- Vturb (VSL por perfil) ----
 const VTURB_ACCOUNT='2e0521c1-9184-4e71-bfe9-8238b40e8cc8';
@@ -290,7 +295,7 @@ function go(next,dir){dir=dir||'fwd';const cur=stage.firstElementChild;
   setTimeout(()=>{state.pos=next;render(dir);},cur?250:0);}
 function back(){if(state.pos>0)go(state.pos-1,'back');}
 
-function render(dir){setProgress();stage.innerHTML="";
+function render(dir){setProgress();track(state.pos);stage.innerHTML="";
   const node=FLOW[state.pos];brand.style.display=node.type==='intro'?'none':'';const el=document.createElement('div');
   el.className="screen "+(dir==='back'?'in-left':'in-right');
   const V={intro:viewIntro,name:viewName,gender:()=>viewPick("gender"),age:()=>viewPick("age"),

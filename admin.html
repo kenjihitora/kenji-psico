@@ -4,223 +4,326 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="robots" content="noindex, nofollow" />
-<title>CRM — Leads do Quiz · Kenji Hirota</title>
+<title>Painel · Kenji Hirota</title>
 <link rel="icon" type="image/png" href="/favicon.png" />
 <link rel="apple-touch-icon" href="/favicon.png" />
 <style>
   :root{--accent:#6d4bf5;--accent-2:#9068ff;--ink:#1b1a2e;--muted:#6b6a80;--line:#e9e7f2;--bg:#f5f3fb;--card:#fff;
-    --novo:#6d4bf5;--contatado:#e2a400;--vendido:#18b98a;--perdido:#9896ac;}
+    --novo:#6d4bf5;--contatado:#e2a400;--vendido:#18b98a;--perdido:#9896ac;--ok:#18b98a;}
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Arial,sans-serif;background:var(--bg);color:var(--ink)}
   a{color:var(--accent)}
   /* login */
   .login-wrap{min-height:100dvh;display:grid;place-items:center;padding:20px}
-  .login{background:var(--card);border-radius:20px;box-shadow:0 20px 60px -25px rgba(70,45,150,.4);padding:34px 30px;width:100%;max-width:360px}
-  .login h1{font-size:20px;margin:0 0 6px}.login p{color:var(--muted);font-size:14px;margin:0 0 20px}
-  .input{width:100%;border:1.6px solid var(--line);border-radius:13px;padding:14px;font-size:16px;outline:none;margin-bottom:12px;background:#fbfaff}
+  .login{background:var(--card);border-radius:20px;box-shadow:0 20px 60px -25px rgba(70,45,150,.4);padding:32px 28px;width:100%;max-width:360px;text-align:center}
+  .login img{height:52px;width:auto;margin-bottom:6px}
+  .login h1{font-size:18px;margin:0 0 4px}.login p{color:var(--muted);font-size:14px;margin:0 0 20px}
+  .input{width:100%;border:1.6px solid var(--line);border-radius:13px;padding:14px;font-size:16px;outline:none;background:#fbfaff}
   .input:focus{border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px rgba(109,75,245,.13)}
-  .btn{width:100%;border:0;border-radius:13px;padding:14px;font-size:15px;font-weight:750;color:#fff;cursor:pointer;
+  .login .input{margin-bottom:12px}
+  .btn{border:0;border-radius:13px;padding:13px 16px;font-size:15px;font-weight:750;color:#fff;cursor:pointer;
     background:linear-gradient(135deg,var(--accent),var(--accent-2))}
-  .btn.sm{width:auto;padding:9px 14px;font-size:13px;border-radius:10px}
+  .btn.full{width:100%}
+  .btn.sm{padding:9px 13px;font-size:13px;border-radius:10px}
   .btn.ghost{background:#efedf8;color:var(--ink)}
   .err{color:#d63b4a;font-size:13px;margin:2px 0 12px;min-height:16px}
-  /* dashboard */
-  .top{background:var(--card);border-bottom:1px solid var(--line);padding:14px 20px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;position:sticky;top:0;z-index:5}
-  .top .brand{font-weight:800;font-size:16px;display:flex;align-items:center;gap:9px}
-  .top .brand .dot{width:28px;height:28px;border-radius:9px;background:linear-gradient(140deg,var(--accent),var(--accent-2));color:#fff;display:grid;place-items:center;font-weight:800}
+  /* topbar */
+  .top{background:var(--card);border-bottom:1px solid var(--line);padding:12px 20px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:10;flex-wrap:wrap}
+  .top .logo{height:24px;width:auto}
+  .tabs{display:flex;gap:6px;background:#f1eff8;border-radius:12px;padding:4px}
+  .tab{border:0;background:transparent;color:var(--muted);font-weight:700;font-size:14px;padding:8px 16px;border-radius:9px;cursor:pointer;transition:.15s}
+  .tab.on{background:#fff;color:var(--accent);box-shadow:0 2px 8px -3px rgba(70,45,150,.35)}
   .spacer{flex:1}
-  .stats{display:flex;gap:10px;flex-wrap:wrap;padding:16px 20px 4px}
-  .stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 16px;min-width:110px}
-  .stat .n{font-size:24px;font-weight:850}.stat .l{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;font-weight:700}
-  .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding:14px 20px}
-  .toolbar .input,.toolbar select{margin:0;padding:10px 12px;font-size:14px;border-radius:11px;border:1.6px solid var(--line);background:#fff}
-  .toolbar .input{min-width:220px;flex:1}
-  .wrap{padding:0 20px 40px}
-  .tablecard{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+  .wrap{padding:20px;max-width:1100px;margin:0 auto}
+  /* cards de stat */
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px 18px}
+  .stat .n{font-size:28px;font-weight:850;line-height:1}.stat .l{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;font-weight:700;margin-top:6px}
+  .stat .sub{font-size:12px;color:var(--muted);margin-top:3px}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 20px;margin-bottom:18px}
+  .panel h3{font-size:13px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin:0 0 16px;font-weight:800}
+  /* date selector */
+  .dates{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-bottom:18px}
+  .dates label{font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:4px}
+  .dates input{border:1.6px solid var(--line);border-radius:11px;padding:9px 11px;font-size:14px;background:#fff}
+  .presets{display:flex;gap:6px}
+  .preset{border:1.5px solid var(--line);background:#fff;border-radius:9px;padding:9px 12px;font-size:13px;font-weight:650;cursor:pointer;color:var(--muted)}
+  .preset:hover{border-color:var(--accent-2);color:var(--accent)}
+  /* funil */
+  .fstep{margin-bottom:14px}
+  .fl{display:flex;justify-content:space-between;font-size:13.5px;font-weight:650;margin-bottom:5px}
+  .fl .c{color:var(--muted);font-weight:600}
+  .ftrack{height:26px;background:var(--line);border-radius:8px;overflow:hidden;position:relative}
+  .ftrack > i{display:block;height:100%;border-radius:8px;background:linear-gradient(90deg,var(--accent),var(--accent-2));transition:width .7s cubic-bezier(.3,.7,.3,1);min-width:2px}
+  .fdrop{font-size:11.5px;color:#d0655a;margin-top:3px;font-weight:600}
+  /* tabelas / breakdown */
   table{width:100%;border-collapse:collapse;font-size:14px}
-  th{ text-align:left;font-size:11.5px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);font-weight:800;padding:13px 14px;border-bottom:1px solid var(--line);background:#faf9fe}
-  td{padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:middle}
+  th{text-align:left;font-size:11.5px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);font-weight:800;padding:11px 12px;border-bottom:1px solid var(--line)}
+  td{padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
   tr:last-child td{border-bottom:0}
-  tr:hover td{background:#fbfaff}
+  .minibar{height:8px;background:var(--line);border-radius:5px;overflow:hidden;min-width:60px}
+  .minibar > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2))}
   .pill{display:inline-block;font-size:11px;font-weight:750;padding:4px 10px;border-radius:999px;background:#f0ecff;color:var(--accent)}
+  /* CRM toolbar */
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+  .toolbar .input,.toolbar select{padding:10px 12px;font-size:14px;border-radius:11px;border:1.6px solid var(--line);background:#fff}
+  .toolbar .input{min-width:220px;flex:1}
+  .viewtoggle{display:flex;background:#f1eff8;border-radius:10px;padding:3px}
+  .viewtoggle button{border:0;background:transparent;padding:7px 12px;border-radius:8px;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer}
+  .viewtoggle button.on{background:#fff;color:var(--accent);box-shadow:0 1px 4px -1px rgba(0,0,0,.15)}
+  /* CRM cards */
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px}
+  .lcard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:10px}
+  .lcard .row1{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+  .lcard .nm{font-size:16px;font-weight:800;line-height:1.2}
+  .lcard .dt{font-size:11.5px;color:var(--muted)}
+  .lcard .origin{font-size:12px;color:var(--muted);background:#faf9fe;border:1px solid var(--line);border-radius:9px;padding:7px 9px;line-height:1.4}
+  .lcard .origin b{color:var(--ink);font-weight:650}
   .wa{font-weight:650;text-decoration:none;color:var(--ink);display:inline-flex;align-items:center;gap:6px}
   .wa:hover{color:#18b98a}
   select.status{border:1.5px solid var(--line);border-radius:9px;padding:6px 8px;font-size:12.5px;font-weight:700;cursor:pointer}
   .st-novo{color:var(--novo)}.st-contatado{color:var(--contatado)}.st-vendido{color:var(--vendido)}.st-perdido{color:var(--perdido)}
+  .tablecard{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+  tr:hover td{background:#fbfaff}
   .link{color:var(--accent);cursor:pointer;font-weight:700;font-size:13px;background:none;border:0}
-  .empty{padding:50px 20px;text-align:center;color:var(--muted)}
+  .empty{padding:44px 20px;text-align:center;color:var(--muted)}
+  .loading{padding:40px;text-align:center;color:var(--muted)}
   /* modal */
-  .modal-bg{position:fixed;inset:0;background:rgba(20,15,45,.45);display:none;place-items:center;padding:18px;z-index:20}
+  .modal-bg{position:fixed;inset:0;background:rgba(20,15,45,.45);display:none;place-items:center;padding:18px;z-index:30}
   .modal-bg.on{display:grid}
   .modal{background:#fff;border-radius:18px;max-width:520px;width:100%;max-height:88vh;overflow:auto;padding:26px}
   .modal h2{margin:0 0 4px;font-size:20px}.modal .sub{color:var(--muted);font-size:13px;margin:0 0 18px}
   .kv{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
   .kv .k{color:var(--muted);min-width:120px;font-weight:600}
   .ans{border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-top:10px}
-  .ans .q{font-size:13px;color:var(--muted);margin-bottom:3px}
-  .ans .a{font-size:14px;font-weight:600}
-  .ans .tag{font-size:11px;color:var(--accent);font-weight:700}
+  .ans .q{font-size:13px;color:var(--muted);margin-bottom:3px}.ans .a{font-size:14px;font-weight:600}.ans .tag{font-size:11px;color:var(--accent);font-weight:700}
   .x{float:right;border:0;background:#f0eef8;width:32px;height:32px;border-radius:9px;cursor:pointer;font-size:16px}
-  @media(max-width:640px){ .hide-sm{display:none} td,th{padding:10px 8px} }
+  @media(max-width:600px){ .hide-sm{display:none} }
 </style>
 </head>
 <body>
 <div id="app"></div>
 
 <script>
-const app = document.getElementById('app');
-let LEADS = [];
-const PERFIS = ['Perfeccionista','Evitativo','Impulsivo','Sobrecarregado','Indeciso'];
-const EMO = {Perfeccionista:'🎯',Evitativo:'🚪',Impulsivo:'⚡',Sobrecarregado:'🌀',Indeciso:'🧭'};
+const app=document.getElementById('app');
+let TAB='analytics', LEADS=[], ANALYTICS=null, crmView='cards', dFrom, dTo;
+const PERFIS=['Perfeccionista','Evitativo','Impulsivo','Sobrecarregado','Indeciso'];
+const EMO={Perfeccionista:'🎯',Evitativo:'🚪',Impulsivo:'⚡',Sobrecarregado:'🌀',Indeciso:'🧭'};
+// rótulos das etapas do funil (mesma ordem do FLOW do quiz)
+const STEPS=['Abriu o quiz','Nome','Gênero','Idade','Pergunta 1','Pergunta 2','Pergunta 3','“Não é preguiça”','Pergunta 4','Pergunta 5','Pergunta 6','Pergunta 7','Método (ciência)','WhatsApp 📲','Calculando','Perfil revelado','Diagnóstico','VSL'];
 
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
-function fmtDate(s){try{const d=new Date(s);return d.toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});}catch{return s;}}
+function fmtDate(s){try{return new Date(s).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});}catch{return s;}}
 function waDigits(w){return String(w||'').replace(/\D/g,'');}
+function iso(d){return d.toISOString().slice(0,10);}
+function daysAgo(n){return iso(new Date(Date.now()-n*864e5));}
 
 async function boot(){
-  const r = await fetch('/api/leads');
+  const r=await fetch('/api/leads');
   if(r.status===401){ renderLogin(); return; }
-  if(!r.ok){ app.innerHTML='<div class="empty">Erro ao carregar. Recarregue a página.</div>'; return; }
-  const j = await r.json(); LEADS = j.leads||[]; renderDash();
+  if(!r.ok){ app.innerHTML='<div class="empty">Erro ao carregar. Recarregue.</div>'; return; }
+  LEADS=(await r.json()).leads||[];
+  dFrom=daysAgo(30); dTo=iso(new Date());
+  enter();
 }
 
 /* ---------- LOGIN ---------- */
 function renderLogin(msg){
-  app.innerHTML = `<div class="login-wrap"><form class="login" id="lf">
-    <h1>🔒 Área do Kenji</h1><p>Entre para ver os leads do quiz.</p>
+  app.innerHTML=`<div class="login-wrap"><form class="login" id="lf">
+    <img src="/logo.png" alt="Kenji Hirota"/>
+    <h1>🔒 Painel do Kenji</h1><p>Entre para ver o funil e os leads.</p>
     <input class="input" id="pw" type="password" placeholder="Senha" autofocus />
     <div class="err" id="err">${msg||''}</div>
-    <button class="btn" type="submit">Entrar</button></form></div>`;
-  document.getElementById('lf').addEventListener('submit', async e=>{
-    e.preventDefault();
-    const err=document.getElementById('err'); err.textContent='';
-    const r = await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({password:document.getElementById('pw').value})});
-    if(r.ok){ boot(); } else { const j=await r.json().catch(()=>({})); err.textContent = j.error||'Falha no login.'; }
+    <button class="btn full" type="submit">Entrar</button></form></div>`;
+  document.getElementById('lf').addEventListener('submit',async e=>{
+    e.preventDefault();const err=document.getElementById('err');err.textContent='';
+    const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:document.getElementById('pw').value})});
+    if(r.ok) boot(); else { const j=await r.json().catch(()=>({}));err.textContent=j.error||'Falha no login.'; }
   });
 }
 
-/* ---------- DASHBOARD ---------- */
-function counts(){const c={total:LEADS.length,novo:0,contatado:0,vendido:0,perdido:0};
-  LEADS.forEach(l=>{c[l.status]=(c[l.status]||0)+1;});return c;}
+/* ---------- SHELL ---------- */
+function enter(){
+  app.innerHTML=`
+    <div class="top">
+      <img class="logo" src="/logo.png" alt="Kenji Hirota"/>
+      <div class="tabs">
+        <button class="tab" id="tab-analytics" onclick="switchTab('analytics')">📊 Analytics</button>
+        <button class="tab" id="tab-crm" onclick="switchTab('crm')">👥 CRM</button>
+      </div>
+      <div class="spacer"></div>
+      <button class="btn sm ghost" onclick="logout()">Sair</button>
+    </div>
+    <div class="wrap" id="content"></div>
+    <div class="modal-bg" id="modalbg" onclick="if(event.target===this)closeModal()"><div class="modal" id="modal"></div></div>`;
+  renderContent();
+}
+function switchTab(t){ TAB=t; renderContent(); }
+function renderContent(){
+  document.getElementById('tab-analytics').classList.toggle('on',TAB==='analytics');
+  document.getElementById('tab-crm').classList.toggle('on',TAB==='crm');
+  if(TAB==='analytics') renderAnalytics(); else renderCRM();
+}
+async function logout(){ await fetch('/api/logout',{method:'POST'}); renderLogin(); }
 
-function renderDash(){
-  const c=counts();
-  app.innerHTML = `
-  <div class="top">
-    <div class="brand"><img src="/logo.png" alt="Kenji Hirota" style="height:22px;width:auto"/> CRM · Leads do Quiz</div>
-    <div class="spacer"></div>
-    <button class="btn sm ghost" onclick="doExport()">⬇️ Exportar CSV</button>
-    <button class="btn sm ghost" onclick="boot()">↻ Atualizar</button>
-    <button class="btn sm ghost" onclick="logout()">Sair</button>
-  </div>
-  <div class="stats">
-    <div class="stat"><div class="n">${c.total}</div><div class="l">Total</div></div>
-    <div class="stat"><div class="n st-novo">${c.novo||0}</div><div class="l">Novos</div></div>
-    <div class="stat"><div class="n st-contatado">${c.contatado||0}</div><div class="l">Contatados</div></div>
-    <div class="stat"><div class="n st-vendido">${c.vendido||0}</div><div class="l">Vendidos</div></div>
-  </div>
-  <div class="toolbar">
-    <input class="input" id="q" placeholder="🔎 Buscar por WhatsApp, perfil, UTM..." oninput="renderTable()" />
-    <select id="fp" onchange="renderTable()">
-      <option value="">Todos os perfis</option>
-      ${PERFIS.map(p=>`<option value="${p}">${EMO[p]} ${p}</option>`).join('')}
-    </select>
-    <select id="fs" onchange="renderTable()">
-      <option value="">Todos os status</option>
-      ${['novo','contatado','vendido','perdido'].map(s=>`<option value="${s}">${s}</option>`).join('')}
-    </select>
-  </div>
-  <div class="wrap"><div class="tablecard" id="tbl"></div></div>
-  <div class="modal-bg" id="modalbg" onclick="if(event.target===this)closeModal()"><div class="modal" id="modal"></div></div>`;
-  renderTable();
+/* ---------- ANALYTICS ---------- */
+function renderAnalytics(){
+  const c=document.getElementById('content');
+  c.innerHTML=`
+    <div class="dates">
+      <div><label>De</label><input type="date" id="df" value="${dFrom}"></div>
+      <div><label>Até</label><input type="date" id="dt" value="${dTo}"></div>
+      <button class="btn sm" onclick="applyDates()">Aplicar</button>
+      <div class="presets">
+        <button class="preset" onclick="quickRange(0)">Hoje</button>
+        <button class="preset" onclick="quickRange(7)">7 dias</button>
+        <button class="preset" onclick="quickRange(30)">30 dias</button>
+        <button class="preset" onclick="quickRange(365)">Tudo</button>
+      </div>
+    </div>
+    <div id="an-body">${ANALYTICS?analyticsBody():'<div class="loading">Carregando métricas…</div>'}</div>`;
+  if(!ANALYTICS) loadAnalytics();
+}
+function applyDates(){ dFrom=document.getElementById('df').value; dTo=document.getElementById('dt').value; loadAnalytics(); }
+function quickRange(n){ dFrom=n?daysAgo(n):iso(new Date()); dTo=iso(new Date()); ANALYTICS=null; renderAnalytics(); }
+async function loadAnalytics(){
+  const body=document.getElementById('an-body'); if(body) body.innerHTML='<div class="loading">Carregando métricas…</div>';
+  const r=await fetch(`/api/analytics?from=${dFrom}&to=${dTo}`);
+  if(r.status===401){ renderLogin(); return; }
+  ANALYTICS=r.ok?await r.json():{funnel:[],sessions:0,leads:0,byAd:[],byProfile:[]};
+  const b=document.getElementById('an-body'); if(b) b.innerHTML=analyticsBody();
+}
+function analyticsBody(){
+  const A=ANALYTICS;
+  const conv=A.sessions?Math.round(A.leads/A.sessions*100):0;
+  // funil cumulativo: reached[i] = soma das sessões com max_step >= i
+  const reached=STEPS.map((_,i)=>(A.funnel||[]).filter(r=>r.max_step>=i).reduce((a,r)=>a+r.n,0));
+  const start=reached[0]||0;
+  const funnelHTML=STEPS.map((label,i)=>{
+    const n=reached[i]||0, pct=start?Math.round(n/start*100):0;
+    const prev=i>0?(reached[i-1]||0):n, drop=prev?Math.round((1-n/prev)*100):0;
+    return `<div class="fstep">
+      <div class="fl"><span>${i+1}. ${label}</span><span class="c">${n} · ${pct}%</span></div>
+      <div class="ftrack"><i style="width:${Math.max(pct,start?1:0)}%"></i></div>
+      ${i>0&&drop>0?`<div class="fdrop">↓ perdeu ${drop}% aqui</div>`:''}</div>`;
+  }).join('');
+  const ads=(A.byAd||[]);
+  const maxAd=Math.max(1,...ads.map(a=>a.leads));
+  const adsHTML=ads.length?`<table><thead><tr><th>Origem</th><th>Campanha</th><th>Anúncio</th><th style="width:120px">Leads</th></tr></thead><tbody>${
+    ads.map(a=>`<tr><td>${esc(a.source)}</td><td class="hide-sm">${esc(a.campaign)}</td><td>${esc(a.ad)}</td>
+      <td><div style="display:flex;align-items:center;gap:8px"><b>${a.leads}</b><div class="minibar" style="flex:1"><i style="width:${Math.round(a.leads/maxAd*100)}%"></i></div></div></td></tr>`).join('')
+  }</tbody></table>`:'<div class="empty">Nenhum lead com UTM nesse período.</div>';
+  const profs=(A.byProfile||[]).filter(p=>p.profile&&p.profile!=='—');
+  const maxP=Math.max(1,...profs.map(p=>p.n));
+  const profHTML=profs.length?profs.map(p=>`<div class="fstep"><div class="fl"><span>${EMO[p.profile]||''} ${esc(p.profile)}</span><span class="c">${p.n}</span></div><div class="ftrack" style="height:16px"><i style="width:${Math.round(p.n/maxP*100)}%"></i></div></div>`).join(''):'<div class="empty">Sem diagnósticos no período.</div>';
+  return `
+    <div class="stats">
+      <div class="stat"><div class="n">${A.sessions}</div><div class="l">Iniciaram o quiz</div></div>
+      <div class="stat"><div class="n st-vendido">${A.leads}</div><div class="l">Leads (WhatsApp)</div></div>
+      <div class="stat"><div class="n" style="color:var(--accent)">${conv}%</div><div class="l">Conversão</div><div class="sub">de quem abriu virou lead</div></div>
+    </div>
+    <div class="panel"><h3>📉 Funil — % de passagem por etapa</h3>${funnelHTML}</div>
+    <div class="panel"><h3>📣 De qual anúncio vieram os leads</h3>${adsHTML}</div>
+    <div class="panel"><h3>🧩 Leads por perfil</h3>${profHTML}</div>`;
 }
 
+/* ---------- CRM ---------- */
+function crmCounts(){const c={total:LEADS.length,novo:0,contatado:0,vendido:0,perdido:0};LEADS.forEach(l=>c[l.status]=(c[l.status]||0)+1);return c;}
+function renderCRM(){
+  const c=crmCounts();
+  document.getElementById('content').innerHTML=`
+    <div class="stats">
+      <div class="stat"><div class="n">${c.total}</div><div class="l">Total de leads</div></div>
+      <div class="stat"><div class="n st-novo">${c.novo||0}</div><div class="l">Novos</div></div>
+      <div class="stat"><div class="n st-contatado">${c.contatado||0}</div><div class="l">Contatados</div></div>
+      <div class="stat"><div class="n st-vendido">${c.vendido||0}</div><div class="l">Vendidos</div></div>
+    </div>
+    <div class="toolbar">
+      <input class="input" id="q" placeholder="🔎 Buscar por nome, WhatsApp, perfil, UTM..." oninput="renderList()" />
+      <select id="fp" onchange="renderList()"><option value="">Todos os perfis</option>${PERFIS.map(p=>`<option value="${p}">${EMO[p]} ${p}</option>`).join('')}</select>
+      <select id="fs" onchange="renderList()"><option value="">Todos os status</option>${['novo','contatado','vendido','perdido'].map(s=>`<option value="${s}">${s}</option>`).join('')}</select>
+      <div class="viewtoggle">
+        <button id="v-cards" class="${crmView==='cards'?'on':''}" onclick="setView('cards')">▦ Cards</button>
+        <button id="v-list" class="${crmView==='list'?'on':''}" onclick="setView('list')">☰ Lista</button>
+      </div>
+      <button class="btn sm ghost" onclick="doExport()">⬇️ CSV</button>
+    </div>
+    <div id="crm-list"></div>`;
+  renderList();
+}
+function setView(v){crmView=v;document.getElementById('v-cards').classList.toggle('on',v==='cards');document.getElementById('v-list').classList.toggle('on',v==='list');renderList();}
 function filtered(){
   const q=(document.getElementById('q').value||'').toLowerCase().trim();
   const fp=document.getElementById('fp').value, fs=document.getElementById('fs').value;
   return LEADS.filter(l=>{
-    if(fp && l.profile!==fp) return false;
-    if(fs && l.status!==fs) return false;
-    if(q){ const hay=(l.whatsapp+' '+(l.name||'')+' '+l.profile+' '+JSON.stringify(l.utm||{})).toLowerCase(); if(!hay.includes(q)) return false; }
+    if(fp&&l.profile!==fp)return false; if(fs&&l.status!==fs)return false;
+    if(q){const hay=((l.name||'')+' '+l.whatsapp+' '+l.profile+' '+JSON.stringify(l.utm||{})).toLowerCase();if(!hay.includes(q))return false;}
     return true;
   });
 }
-
-function renderTable(){
-  const rows=filtered();
-  const tbl=document.getElementById('tbl');
-  if(!rows.length){ tbl.innerHTML='<div class="empty">Nenhum lead ainda. Assim que alguém terminar o quiz, aparece aqui. 👀</div>'; return; }
-  tbl.innerHTML = `<table><thead><tr>
-    <th>Data</th><th>Nome</th><th>WhatsApp</th><th>Perfil</th><th class="hide-sm">Origem</th><th>Status</th><th></th>
-  </tr></thead><tbody>${rows.map(rowHTML).join('')}</tbody></table>`;
+function origin(l){const u=l.utm||{};const ad=u.utm_content||u.utm_term,cmp=u.utm_campaign,src=u.utm_source;
+  if(!src&&!cmp&&!ad)return null;return {src:src||'—',cmp:cmp||'—',ad:ad||'—'};}
+function statusSel(l){return `<select class="status st-${l.status}" onchange="setStatus(${l.id},this.value,this)">${['novo','contatado','vendido','perdido'].map(o=>`<option value="${o}"${o===l.status?' selected':''}>${o}</option>`).join('')}</select>`;}
+function renderList(){
+  const rows=filtered(), el=document.getElementById('crm-list');
+  if(!rows.length){el.innerHTML='<div class="empty">Nenhum lead. Assim que alguém terminar o quiz, aparece aqui. 👀</div>';return;}
+  if(crmView==='cards'){
+    el.className='cards';
+    el.innerHTML=rows.map(l=>{const o=origin(l),wa=waDigits(l.whatsapp);
+      return `<div class="lcard">
+        <div class="row1"><div><div class="nm">${esc(l.name)||'—'}</div><div class="dt">${fmtDate(l.created_at)}</div></div>${statusSel(l)}</div>
+        <div>${l.profile?`<span class="pill">${EMO[l.profile]||''} ${esc(l.profile)}</span>`:''}</div>
+        <a class="wa" href="https://wa.me/${wa}" target="_blank" rel="noopener">💬 ${esc(l.whatsapp)}</a>
+        ${o?`<div class="origin">📣 <b>${esc(o.ad)}</b><br>${esc(o.src)} · ${esc(o.cmp)}</div>`:'<div class="origin">📣 tráfego direto</div>'}
+        <button class="link" style="text-align:left" onclick='openModal(${l.id})'>ver detalhes →</button>
+      </div>`;}).join('');
+  } else {
+    el.className='';
+    el.innerHTML=`<div class="tablecard"><table><thead><tr><th>Data</th><th>Nome</th><th>WhatsApp</th><th>Perfil</th><th class="hide-sm">Anúncio</th><th>Status</th><th></th></tr></thead><tbody>${
+      rows.map(l=>{const o=origin(l),wa=waDigits(l.whatsapp);
+        return `<tr><td style="color:var(--muted);white-space:nowrap">${fmtDate(l.created_at)}</td>
+        <td style="font-weight:650">${esc(l.name)||'—'}</td>
+        <td><a class="wa" href="https://wa.me/${wa}" target="_blank" rel="noopener">💬 ${esc(l.whatsapp)}</a></td>
+        <td>${l.profile?`<span class="pill">${EMO[l.profile]||''} ${esc(l.profile)}</span>`:'—'}</td>
+        <td class="hide-sm" style="color:var(--muted);font-size:12.5px">${o?esc(o.ad):'—'}</td>
+        <td>${statusSel(l)}</td><td><button class="link" onclick='openModal(${l.id})'>ver</button></td></tr>`;}).join('')
+    }</tbody></table></div>`;
+  }
 }
-function rowHTML(l){
-  const wa=waDigits(l.whatsapp);
-  const origem = (l.utm && (l.utm.utm_campaign||l.utm.utm_source)) ? esc(l.utm.utm_campaign||l.utm.utm_source) : '—';
-  return `<tr>
-    <td style="color:var(--muted);white-space:nowrap">${fmtDate(l.created_at)}</td>
-    <td style="font-weight:650">${esc(l.name)||'—'}</td>
-    <td><a class="wa" href="https://wa.me/${wa}" target="_blank" rel="noopener">💬 ${esc(l.whatsapp)}</a></td>
-    <td>${l.profile?`<span class="pill">${EMO[l.profile]||''} ${esc(l.profile)}</span>`:'—'}</td>
-    <td class="hide-sm" style="color:var(--muted);font-size:12.5px">${origem}</td>
-    <td>${statusSelect(l)}</td>
-    <td><button class="link" onclick='openModal(${l.id})'>ver</button></td>
-  </tr>`;
-}
-function statusSelect(l){
-  const opts=['novo','contatado','vendido','perdido'];
-  return `<select class="status st-${l.status}" onchange="setStatus(${l.id},this.value,this)">
-    ${opts.map(o=>`<option value="${o}"${o===l.status?' selected':''}>${o}</option>`).join('')}</select>`;
-}
-
 async function setStatus(id,status,el){
   el.className='status st-'+status;
   const r=await fetch('/api/update',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,status})});
-  if(r.ok){ const l=LEADS.find(x=>x.id===id); if(l)l.status=status; const c=counts();
-    // atualiza os números dos cards sem re-render completo
-    const s=document.querySelectorAll('.stat .n'); if(s.length>=4){s[0].textContent=c.total;s[1].textContent=c.novo||0;s[2].textContent=c.contatado||0;s[3].textContent=c.vendido||0;}
-  } else { alert('Não consegui salvar o status.'); }
+  if(r.ok){const l=LEADS.find(x=>x.id===id);if(l)l.status=status;} else alert('Não consegui salvar o status.');
 }
-
 function openModal(id){
-  const l=LEADS.find(x=>x.id===id); if(!l) return;
+  const l=LEADS.find(x=>x.id===id);if(!l)return;
   const ans=(l.answers||[]).map(a=>`<div class="ans"><div class="q">${esc(a.q)}</div><div class="a">${esc(a.a)}</div><div class="tag">→ ${esc(a.perfil)}</div></div>`).join('');
-  const utm=l.utm&&Object.keys(l.utm).length?Object.entries(l.utm).map(([k,v])=>`<div class="kv"><div class="k">${esc(k)}</div><div>${esc(v)}</div></div>`).join(''):'<div class="kv"><div class="k">—</div><div>sem UTM (tráfego direto)</div></div>';
-  document.getElementById('modal').innerHTML = `
+  const utm=l.utm&&Object.keys(l.utm).length?Object.entries(l.utm).map(([k,v])=>`<div class="kv"><div class="k">${esc(k)}</div><div>${esc(v)}</div></div>`).join(''):'<div class="kv"><div class="k">—</div><div>tráfego direto</div></div>';
+  document.getElementById('modal').innerHTML=`
     <button class="x" onclick="closeModal()">✕</button>
-    <h2>${EMO[l.profile]||''} O ${esc(l.profile)||'—'}</h2>
-    <div class="sub">${fmtDate(l.created_at)}</div>
-    <div class="kv"><div class="k">Nome</div><div>${esc(l.name)||'—'}</div></div>
+    <h2>${EMO[l.profile]||''} ${esc(l.name)||'Lead'}</h2>
+    <div class="sub">${l.profile?'O '+esc(l.profile)+' · ':''}${fmtDate(l.created_at)}</div>
     <div class="kv"><div class="k">WhatsApp</div><div><a class="wa" href="https://wa.me/${waDigits(l.whatsapp)}" target="_blank" rel="noopener">${esc(l.whatsapp)}</a></div></div>
     <div class="kv"><div class="k">Gênero / Idade</div><div>${esc(l.gender)||'—'} · ${esc(l.age)||'—'}</div></div>
     <div class="kv"><div class="k">Status</div><div>${esc(l.status)}</div></div>
-    <h3 style="margin:18px 0 4px;font-size:13px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted)">Respostas</h3>
-    ${ans||'<div class="sub">—</div>'}
-    <h3 style="margin:18px 0 4px;font-size:13px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted)">Origem (UTM)</h3>
-    ${utm}
+    <h3 style="margin:18px 0 4px;font-size:13px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted)">Respostas</h3>${ans||'<div class="sub">—</div>'}
+    <h3 style="margin:18px 0 4px;font-size:13px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted)">Origem (UTM)</h3>${utm}
     <div style="margin-top:20px;padding-top:14px;border-top:1px solid var(--line);text-align:right"><button class="link" style="color:#d63b4a" onclick="delLead(${l.id})">🗑️ Excluir este lead</button></div>`;
   document.getElementById('modalbg').classList.add('on');
 }
 function closeModal(){document.getElementById('modalbg').classList.remove('on');}
 async function delLead(id){
-  if(!confirm('Excluir este lead? Essa ação não tem volta.')) return;
+  if(!confirm('Excluir este lead? Essa ação não tem volta.'))return;
   const r=await fetch('/api/delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})});
-  if(r.ok){ LEADS=LEADS.filter(x=>x.id!==id); closeModal(); renderDash(); } else { alert('Não consegui excluir o lead.'); }
+  if(r.ok){LEADS=LEADS.filter(x=>x.id!==id);closeModal();renderContent();}else alert('Não consegui excluir.');
 }
-
-async function logout(){ await fetch('/api/logout',{method:'POST'}); renderLogin(); }
-
 function doExport(){
-  const rows=filtered();
-  const cols=['data','nome','whatsapp','perfil','genero','idade','status','utm_source','utm_campaign'];
-  const csv=[cols.join(',')].concat(rows.map(l=>{
-    const u=l.utm||{};
-    return [fmtDate(l.created_at),l.name,l.whatsapp,l.profile,l.gender,l.age,l.status,u.utm_source||'',u.utm_campaign||'']
-      .map(v=>`"${String(v==null?'':v).replace(/"/g,'""')}"`).join(',');
-  })).join('\n');
-  const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='leads-kenji.csv';a.click();
+  const rows=filtered();const cols=['data','nome','whatsapp','perfil','genero','idade','status','utm_source','utm_campaign','utm_content'];
+  const csv=[cols.join(',')].concat(rows.map(l=>{const u=l.utm||{};
+    return [fmtDate(l.created_at),l.name,l.whatsapp,l.profile,l.gender,l.age,l.status,u.utm_source||'',u.utm_campaign||'',u.utm_content||'']
+      .map(v=>`"${String(v==null?'':v).replace(/"/g,'""')}"`).join(',');})).join('\n');
+  const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'});const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);a.download='leads-kenji.csv';a.click();
 }
 
 boot();

@@ -246,6 +246,7 @@ const state = {pos:0, name:"", gender:null, age:null, answers:{}, whatsapp:"", u
 try{ state.utm = Object.fromEntries(new URLSearchParams(location.search)); }catch(e){}
 // Meta Pixel — dispara evento com segurança (não quebra se o pixel for bloqueado)
 function fb(){ try{ if(window.fbq) window.fbq.apply(window, arguments); }catch(e){} }
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 
 // ---- Vturb (VSL por perfil) ----
 const VTURB_ACCOUNT='2e0521c1-9184-4e71-bfe9-8238b40e8cc8';
@@ -321,7 +322,7 @@ function viewIntro(){return `
   <button class="btn" onclick="fb('trackCustom','QuizStart');go(1)">Começar o diagnóstico <span>🚀</span></button>`;}
 
 function viewName(){return `<div class="grow"></div><div class="step">Pra começar</div>
-  <h2>Como podemos te chamar?</h2>
+  <h2>Como posso te chamar?</h2>
   <p class="sub">Seu primeiro nome, pra deixar o seu diagnóstico mais pessoal.</p>
   <input class="input" id="nm" type="text" placeholder="Seu primeiro nome" autocomplete="given-name" value="${(state.name||'').replace(/"/g,'&quot;')}" />
   <div class="grow"></div>
@@ -333,8 +334,10 @@ function bindName(){const inp=document.getElementById('nm'),btn=document.getElem
 function submitName(){state.name=document.getElementById('nm').value.trim();go(state.pos+1);}
 
 function viewPick(kind){
-  const cfg=kind==="gender"?{step:"Pra começar",q:"Como você se identifica?",list:GENDER}
-    :{step:"Quase lá",q:"Qual a sua idade?",list:AGE};
+  const nm=state.name?esc(state.name):'';
+  const cfg=kind==="gender"
+    ?{step:"Pra começar",q:nm?`${nm}, como você se identifica?`:"Como você se identifica?",list:GENDER}
+    :{step:"Quase lá",q:nm?`Qual a sua idade, ${nm}?`:"Qual a sua idade?",list:AGE};
   const cur=state[kind];
   const opts=cfg.list.map((o,i)=>`<button class="opt big${cur===o.t?' sel':''}" data-i="${i}">
     <span class="em">${o.e}</span><span class="txt">${o.t}</span></button>`).join("");

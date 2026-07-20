@@ -102,6 +102,17 @@
   .link{color:var(--accent);cursor:pointer;font-weight:700;font-size:13px;background:none;border:0}
   .empty{padding:44px 20px;text-align:center;color:var(--muted)}
   .loading{padding:40px;text-align:center;color:var(--muted)}
+  /* Campanhas */
+  .connect{text-align:center;padding:38px 24px}
+  .connect-ico{font-size:44px;margin-bottom:6px}
+  .connect h2{font-size:19px;margin:0 0 8px}
+  .connect p{color:var(--muted);font-size:14px;line-height:1.55;max-width:540px;margin:0 auto 8px}
+  .connect .setup{max-width:470px;margin:14px auto 0;text-align:left;color:var(--ink);font-size:13.5px;line-height:1.75}
+  .connect .errmsg{color:#c0392b;font-weight:650;background:#fdecea;border-radius:10px;padding:10px 14px;display:inline-block;max-width:560px}
+  code{background:#f0ecff;color:var(--accent);padding:1px 6px;border-radius:6px;font-size:.88em;font-weight:650}
+  .metacmp{display:block;font-size:11px;color:var(--muted);font-weight:600;margin-top:2px}
+  .hl{color:var(--accent)}
+  .fineprint{font-size:12px;color:var(--muted);line-height:1.6;margin:6px 2px 0}
   /* modal */
   .modal-bg{position:fixed;inset:0;background:rgba(20,15,45,.45);display:none;place-items:center;padding:18px;z-index:30}
   .modal-bg.on{display:grid}
@@ -120,7 +131,7 @@
 
 <script>
 const app=document.getElementById('app');
-let TAB='analytics', LEADS=[], ANALYTICS=null, crmView='cards', dFrom, dTo;
+let TAB='analytics', LEADS=[], ANALYTICS=null, CAMP=null, crmView='cards', dFrom, dTo;
 const PERFIS=['Perfeccionista','Evitativo','Impulsivo','Sobrecarregado','Indeciso'];
 const EMO={Perfeccionista:'🎯',Evitativo:'🚪',Impulsivo:'⚡',Sobrecarregado:'🌀',Indeciso:'🧭'};
 // rótulos das etapas do funil (mesma ordem do FLOW do quiz)
@@ -163,6 +174,7 @@ function enter(){
       <img class="logo" src="/logo.png" alt="Kenji Hirota"/>
       <div class="tabs">
         <button class="tab" id="tab-analytics" onclick="switchTab('analytics')">📊 Analytics</button>
+        <button class="tab" id="tab-campanhas" onclick="switchTab('campanhas')">📣 Campanhas</button>
         <button class="tab" id="tab-crm" onclick="switchTab('crm')">👥 CRM</button>
       </div>
       <div class="spacer"></div>
@@ -175,8 +187,11 @@ function enter(){
 function switchTab(t){ TAB=t; renderContent(); }
 function renderContent(){
   document.getElementById('tab-analytics').classList.toggle('on',TAB==='analytics');
+  document.getElementById('tab-campanhas').classList.toggle('on',TAB==='campanhas');
   document.getElementById('tab-crm').classList.toggle('on',TAB==='crm');
-  if(TAB==='analytics') renderAnalytics(); else renderCRM();
+  if(TAB==='analytics') renderAnalytics();
+  else if(TAB==='campanhas') renderCampaigns();
+  else renderCRM();
 }
 async function logout(){ await fetch('/api/logout',{method:'POST'}); renderLogin(); }
 
@@ -239,6 +254,74 @@ function analyticsBody(){
     <div class="panel"><h3>📉 Funil — % de passagem por etapa</h3>${funnelHTML}</div>
     <div class="panel"><h3>📣 De qual anúncio vieram os leads</h3>${adsHTML}</div>
     <div class="panel"><h3>🧩 Leads por perfil</h3>${profHTML}</div>`;
+}
+
+/* ---------- CAMPANHAS (Meta) ---------- */
+function cMoney(v,cur){ if(v==null||v==='') return '—'; try{return new Intl.NumberFormat('pt-BR',{style:'currency',currency:cur||'BRL'}).format(Number(v));}catch{return 'R$ '+Number(v).toFixed(2);} }
+function cInt(v){ return new Intl.NumberFormat('pt-BR').format(Math.round(Number(v)||0)); }
+function renderCampaigns(){
+  const c=document.getElementById('content');
+  c.innerHTML=`
+    <div class="dates">
+      <div><label>De</label><input type="date" id="cf" value="${dFrom}"></div>
+      <div><label>Até</label><input type="date" id="ct" value="${dTo}"></div>
+      <button class="btn sm" onclick="applyCampDates()">Aplicar</button>
+      <div class="presets">
+        <button class="preset" onclick="quickCamp(7)">7 dias</button>
+        <button class="preset" onclick="quickCamp(30)">30 dias</button>
+        <button class="preset" onclick="quickCamp(90)">90 dias</button>
+      </div>
+    </div>
+    <div id="camp-body">${CAMP?campaignsBody():'<div class="loading">Carregando campanhas…</div>'}</div>`;
+  if(!CAMP) loadCampaigns();
+}
+function applyCampDates(){ dFrom=document.getElementById('cf').value; dTo=document.getElementById('ct').value; loadCampaigns(); }
+function quickCamp(n){ dFrom=daysAgo(n); dTo=iso(new Date()); CAMP=null; renderCampaigns(); }
+async function loadCampaigns(){
+  const body=document.getElementById('camp-body'); if(body) body.innerHTML='<div class="loading">Carregando campanhas…</div>';
+  let r; try{ r=await fetch(`/api/campaigns?from=${dFrom}&to=${dTo}`); }catch(e){ CAMP={connected:true,error:'Sem conexão com o servidor.'}; }
+  if(r){ if(r.status===401){ renderLogin(); return; } CAMP=r.ok?await r.json():{connected:true,error:'Erro ao carregar (servidor).'}; }
+  const b=document.getElementById('camp-body'); if(b) b.innerHTML=campaignsBody();
+}
+function campaignsBody(){
+  const D=CAMP||{};
+  if(!D.connected) return `<div class="panel connect">
+    <div class="connect-ico">📣</div>
+    <h2>Facebook ainda não conectado</h2>
+    <p>Quando o token da Meta estiver na Vercel, as campanhas aparecem aqui — gasto, CPL real e ROAS por campanha, cruzando com os leads do CRM.</p>
+    <ol class="setup">
+      <li>Gera um <b>token de System User</b> (permissão <code>ads_read</code>) no Business Settings do Meta.</li>
+      <li>Na Vercel, adiciona <code>META_ACCESS_TOKEN</code> e <code>META_AD_ACCOUNT_ID</code> (ex.: <code>act_1234...</code>).</li>
+      <li>Redeploy e recarrega esta página.</li>
+    </ol></div>`;
+  if(D.error) return `<div class="panel connect">
+    <div class="connect-ico">⚠️</div>
+    <h2>Não consegui puxar do Meta</h2>
+    <p class="errmsg">${esc(D.error)}</p>
+    <p>Confere se o token tem <code>ads_read</code>, se não expirou, e se a conta (<code>META_AD_ACCOUNT_ID</code>) está certa e acessível pelo System User.</p></div>`;
+  const cs=D.campaigns||[], t=D.totals||{}, cur=D.currency;
+  if(!cs.length) return '<div class="empty">Nenhuma campanha com gasto nesse período. 📅</div>';
+  const rows=cs.map(c=>`<tr>
+    <td><b>${esc(c.name||'—')}</b></td>
+    <td>${cMoney(c.spend,cur)}</td>
+    <td>${cInt(c.our_leads)}${c.meta_leads?`<span class="metacmp">Meta: ${cInt(c.meta_leads)}</span>`:''}</td>
+    <td><b class="hl">${c.our_cpl!=null?cMoney(c.our_cpl,cur):'—'}</b></td>
+    <td>${c.vendidos?cInt(c.vendidos):'—'}</td>
+    <td>${c.cpa!=null?cMoney(c.cpa,cur):'—'}</td>
+    <td>${(Number(c.ctr)||0).toFixed(2)}%</td>
+  </tr>`).join('');
+  return `
+    <div class="stats">
+      <div class="stat"><div class="n">${cMoney(t.spend,cur)}</div><div class="l">Gasto total</div></div>
+      <div class="stat"><div class="n st-novo">${cInt(t.our_leads)}</div><div class="l">Leads (nossos)</div></div>
+      <div class="stat"><div class="n" style="color:var(--accent)">${t.our_cpl!=null?cMoney(t.our_cpl,cur):'—'}</div><div class="l">CPL real</div><div class="sub">gasto ÷ leads no CRM</div></div>
+      <div class="stat"><div class="n st-vendido">${cInt(t.vendidos)}</div><div class="l">Vendidos</div>${t.cpa!=null?`<div class="sub">CPA ${cMoney(t.cpa,cur)}</div>`:''}</div>
+    </div>
+    <div class="panel"><h3>📣 Por campanha</h3>
+      <div class="tablecard"><table>
+        <thead><tr><th>Campanha</th><th>Gasto</th><th>Leads</th><th>CPL real</th><th>Vend.</th><th>CPA</th><th>CTR</th></tr></thead>
+        <tbody>${rows}</tbody></table></div></div>
+    <p class="fineprint">💡 <b>Leads</b> e <b>CPL real</b> usam os leads que caíram no nosso CRM (via <code>utm_campaign</code>), já ignorando os de <b>teste</b>. O "Meta: X" é a contagem do próprio Facebook, só pra comparar. Precisa do UTM <code>utm_campaign={{campaign.name}}</code> nos anúncios.</p>`;
 }
 
 /* ---------- CRM ---------- */

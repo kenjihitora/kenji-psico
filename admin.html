@@ -9,7 +9,7 @@
 <link rel="apple-touch-icon" href="/favicon.png" />
 <style>
   :root{--accent:#6d4bf5;--accent-2:#9068ff;--ink:#1b1a2e;--muted:#6b6a80;--line:#e9e7f2;--bg:#f5f3fb;--card:#fff;
-    --novo:#6d4bf5;--contatado:#e2a400;--vendido:#18b98a;--perdido:#9896ac;--ok:#18b98a;}
+    --novo:#6d4bf5;--contatado:#e2a400;--vendido:#18b98a;--perdido:#9896ac;--teste:#64748b;--ok:#18b98a;}
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Arial,sans-serif;background:var(--bg);color:var(--ink)}
   a{color:var(--accent)}
@@ -96,7 +96,7 @@
   .wa{font-weight:650;text-decoration:none;color:var(--ink);display:inline-flex;align-items:center;gap:6px}
   .wa:hover{color:#18b98a}
   select.status{border:1.5px solid var(--line);border-radius:9px;padding:6px 8px;font-size:12.5px;font-weight:700;cursor:pointer}
-  .st-novo{color:var(--novo)}.st-contatado{color:var(--contatado)}.st-vendido{color:var(--vendido)}.st-perdido{color:var(--perdido)}
+  .st-novo{color:var(--novo)}.st-contatado{color:var(--contatado)}.st-vendido{color:var(--vendido)}.st-perdido{color:var(--perdido)}.st-teste{color:var(--teste)}
   .tablecard{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
   tr:hover td{background:#fbfaff}
   .link{color:var(--accent);cursor:pointer;font-weight:700;font-size:13px;background:none;border:0}
@@ -242,7 +242,7 @@ function analyticsBody(){
 }
 
 /* ---------- CRM ---------- */
-function crmCounts(){const c={total:LEADS.length,novo:0,contatado:0,vendido:0,perdido:0};LEADS.forEach(l=>c[l.status]=(c[l.status]||0)+1);return c;}
+function crmCounts(){const c={total:0,novo:0,contatado:0,vendido:0,perdido:0,teste:0};LEADS.forEach(l=>{c[l.status]=(c[l.status]||0)+1;if(l.status!=='teste')c.total++;});return c;}
 function renderCRM(){
   const c=crmCounts();
   document.getElementById('content').innerHTML=`
@@ -255,7 +255,7 @@ function renderCRM(){
     <div class="toolbar">
       <input class="input" id="q" placeholder="🔎 Buscar por nome, WhatsApp, perfil, UTM..." oninput="renderList()" />
       <select id="fp" onchange="renderList()"><option value="">Todos os perfis</option>${PERFIS.map(p=>`<option value="${p}">${EMO[p]} ${p}</option>`).join('')}</select>
-      <select id="fs" onchange="renderList()"><option value="">Todos os status</option>${['novo','contatado','vendido','perdido'].map(s=>`<option value="${s}">${s}</option>`).join('')}</select>
+      <select id="fs" onchange="renderList()"><option value="">Todos os status</option>${['novo','contatado','vendido','perdido','teste'].map(s=>`<option value="${s}">${s}</option>`).join('')}</select>
       <div class="viewtoggle">
         <button id="v-cards" class="${crmView==='cards'?'on':''}" onclick="setView('cards')">▦ Colunas</button>
         <button id="v-list" class="${crmView==='list'?'on':''}" onclick="setView('list')">☰ Lista</button>
@@ -277,13 +277,13 @@ function filtered(){
 }
 function origin(l){const u=l.utm||{};const ad=u.utm_content||u.utm_term,cmp=u.utm_campaign,src=u.utm_source;
   if(!src&&!cmp&&!ad)return null;return {src:src||'—',cmp:cmp||'—',ad:ad||'—'};}
-function statusSel(l){return `<select class="status st-${l.status}" onchange="setStatus(${l.id},this.value,this)">${['novo','contatado','vendido','perdido'].map(o=>`<option value="${o}"${o===l.status?' selected':''}>${o}</option>`).join('')}</select>`;}
+function statusSel(l){return `<select class="status st-${l.status}" onchange="setStatus(${l.id},this.value,this)">${['novo','contatado','vendido','perdido','teste'].map(o=>`<option value="${o}"${o===l.status?' selected':''}>${o}</option>`).join('')}</select>`;}
 function renderList(){
   const rows=filtered(), el=document.getElementById('crm-list');
   if(!rows.length){el.innerHTML='<div class="empty">Nenhum lead. Assim que alguém terminar o quiz, aparece aqui. 👀</div>';return;}
   if(crmView==='cards'){
     el.className='';
-    const cols=[{k:'novo',l:'Novo',c:'var(--novo)'},{k:'contatado',l:'Contatado',c:'var(--contatado)'},{k:'vendido',l:'Vendido',c:'var(--vendido)'},{k:'perdido',l:'Perdido',c:'var(--perdido)'}];
+    const cols=[{k:'novo',l:'Novo',c:'var(--novo)'},{k:'contatado',l:'Contatado',c:'var(--contatado)'},{k:'vendido',l:'Vendido',c:'var(--vendido)'},{k:'perdido',l:'Perdido',c:'var(--perdido)'},{k:'teste',l:'🧪 Teste',c:'var(--teste)'}];
     el.innerHTML='<div class="board">'+cols.map(s=>{
       const items=rows.filter(l=>l.status===s.k);
       return `<div class="column" ondragover="event.preventDefault()" ondragenter="this.classList.add('over')" ondragleave="if(event.target===this)this.classList.remove('over')" ondrop="dropCard(event,'${s.k}')">

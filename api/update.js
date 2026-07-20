@@ -1,6 +1,6 @@
 // POST /api/update — muda o status de um lead (novo/contatado/vendido/perdido). Protegido.
 const { sql, isAuthed, readBody } = require('../lib/util');
-const ALLOWED = ['novo', 'contatado', 'vendido', 'perdido'];
+const ALLOWED = ['novo', 'contatado', 'vendido', 'perdido', 'teste'];
 
 module.exports = async (req, res) => {
   if (!isAuthed(req)) { res.status(401).json({ error: 'auth' }); return; }

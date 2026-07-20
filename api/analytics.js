@@ -21,7 +21,7 @@ module.exports = async (req, res) => {
     const sessions = await sql`SELECT count(*)::int AS n FROM sessions
       WHERE created_at >= ${fromISO} AND created_at < ${toISO}`;
     const leads = await sql`SELECT count(*)::int AS n FROM leads
-      WHERE created_at >= ${fromISO} AND created_at < ${toISO}`;
+      WHERE created_at >= ${fromISO} AND created_at < ${toISO} AND status <> 'teste'`;
 
     // leads por anúncio (UTM)
     const byAd = await sql`
@@ -30,13 +30,13 @@ module.exports = async (req, res) => {
              coalesce(nullif(utm->>'utm_content',''), nullif(utm->>'utm_term',''), '—') AS ad,
              count(*)::int AS leads
       FROM leads
-      WHERE created_at >= ${fromISO} AND created_at < ${toISO}
+      WHERE created_at >= ${fromISO} AND created_at < ${toISO} AND status <> 'teste'
       GROUP BY 1,2,3 ORDER BY leads DESC LIMIT 100`;
 
     // leads por perfil
     const byProfile = await sql`
       SELECT coalesce(profile,'—') AS profile, count(*)::int AS n
-      FROM leads WHERE created_at >= ${fromISO} AND created_at < ${toISO}
+      FROM leads WHERE created_at >= ${fromISO} AND created_at < ${toISO} AND status <> 'teste'
       GROUP BY 1 ORDER BY n DESC`;
 
     res.status(200).json({ funnel, sessions: sessions[0].n, leads: leads[0].n, byAd, byProfile });

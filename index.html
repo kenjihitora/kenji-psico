@@ -39,6 +39,10 @@
   .progress > i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent-2));border-radius:99px;transition:width .5s cubic-bezier(.4,0,.2,1)}
   .stage{flex:1;position:relative;padding:8px 24px 26px;display:flex;flex-direction:column}
   .step{font-size:11.5px;font-weight:800;color:var(--accent);letter-spacing:.7px;text-transform:uppercase;margin-bottom:11px}
+  .pf-row{display:flex;justify-content:center;gap:4px;margin:8px 0 2px}
+  .pf{display:flex;flex-direction:column;align-items:center;gap:5px;width:54px}
+  .pf .c{width:47px;height:47px;border-radius:50%;background:var(--accent-soft);display:grid;place-items:center;font-size:23px;box-shadow:0 0 0 4px rgba(109,75,245,.05)}
+  .pf .n{font-size:9px;font-weight:700;color:var(--muted);text-align:center;line-height:1.12}
   .lead{font-size:14px;color:var(--muted);font-style:italic;line-height:1.5;margin:0 0 14px}
   h1{font-size:27px;line-height:1.2;margin:0 0 12px;font-weight:850;letter-spacing:-.5px}
   h2{font-size:20.5px;line-height:1.34;margin:0 0 20px;font-weight:780;letter-spacing:-.2px}
@@ -315,16 +319,21 @@ function render(dir){setProgress();track(state.pos);stage.innerHTML="";
 
 /* ---- views ---- */
 function viewIntro(){return `
-  <div class="grow"></div>
-  <div style="text-align:center;margin-bottom:24px">
-    <img src="/logo.png" alt="Kenji Hirota" style="width:190px;max-width:64%;height:auto;display:inline-block"/>
-    <div style="font-size:12px;font-weight:700;letter-spacing:1.5px;color:#8a88a0;margin-top:2px">CRP 18/09596</div>
+  <div class="grow" style="flex:.4"></div>
+  <div style="text-align:center;margin-bottom:18px">
+    <img src="intro.gif" alt="" style="width:100%;max-width:270px;height:auto;border-radius:18px;display:inline-block;background:#f4a72c"/>
   </div>
-  <div class="step">Diagnóstico gratuito · 2 min</div>
   <h1>Descubra o seu <span style="color:var(--accent)">Perfil Procrastinador</span></h1>
-  <p class="sub">Existem 5 perfis de procrastinação. Responda essas 7 perguntas rápidas e descubra qual é o seu e como interromper esse ciclo.</p>
+  <p class="sub">Responda 7 perguntas rápidas e descubra o seu.</p>
+  <div class="pf-row">
+    <div class="pf"><div class="c">🎯</div><div class="n">Perfec-<br>cionista</div></div>
+    <div class="pf"><div class="c">🚪</div><div class="n">Evita-<br>tivo</div></div>
+    <div class="pf"><div class="c">⚡</div><div class="n">Impul-<br>sivo</div></div>
+    <div class="pf"><div class="c">🌀</div><div class="n">Sobrecar-<br>regado</div></div>
+    <div class="pf"><div class="c">🧭</div><div class="n">Inde-<br>ciso</div></div>
+  </div>
   <div class="grow"></div>
-  <button class="btn" onclick="fb('trackCustom','QuizStart');go(1)">Começar o diagnóstico <span>🚀</span></button>`;}
+  <button class="btn" onclick="fb('trackCustom','QuizStart');go(1)">Descobrir o meu perfil <span>🚀</span></button>`;}
 
 function viewName(){return `<div class="grow"></div><div class="step">Pra começar</div>
   <h2>Como posso te chamar?</h2>

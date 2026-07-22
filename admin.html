@@ -228,7 +228,7 @@ function renderAnalytics(){
       <button class="btn sm" onclick="applyDates()">Aplicar</button>
       ${datePresetBtns()}
     </div>
-    <label class="mswitch" style="margin:2px 2px 16px" title="Só sessões com fbclid ou utm_source de Facebook/Instagram"><input type="checkbox" ${anMetaOnly?'checked':''} onchange="toggleMetaOnly(this.checked)"><span class="track"></span><span class="lbl">Mostrar só tráfego do Meta (anúncios)</span></label>
+    <label class="mswitch" style="margin:2px 2px 16px" title="Só sessões de anúncio pago do Meta (com utm_campaign + utm_source de Facebook/Instagram). Deixa de fora orgânico, time e tráfego direto."><input type="checkbox" ${anMetaOnly?'checked':''} onchange="toggleMetaOnly(this.checked)"><span class="track"></span><span class="lbl">Mostrar só anúncios do Meta</span></label>
     <div id="an-body">${ANALYTICS?analyticsBody():'<div class="loading">Carregando métricas…</div>'}</div>`;
   if(!ANALYTICS) loadAnalytics();
 }

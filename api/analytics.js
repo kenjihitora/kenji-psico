@@ -1,6 +1,6 @@
 // GET /api/analytics?from=YYYY-MM-DD&to=YYYY-MM-DD&source=meta — métricas do funil. Protegido.
-// source=meta → filtra só tráfego que veio do Meta (fbclid presente OU utm_source de Facebook/Instagram),
-// deixando de fora time/expert/quem abriu a URL direto.
+// source=meta → filtra só tráfego dos ANÚNCIOS pagos do Meta (utm_campaign presente + utm_source de Facebook/Instagram),
+// deixando de fora orgânico (fbclid sem UTM), time/expert e quem abriu a URL direto.
 const { sql, ensureTable, isAuthed } = require('../lib/util');
 
 module.exports = async (req, res) => {
@@ -19,16 +19,16 @@ module.exports = async (req, res) => {
       SELECT max_step, count(*)::int AS n
       FROM sessions
       WHERE created_at >= ${fromISO} AND created_at < ${toISO}
-        AND (${inc} OR (utm->>'fbclid') IS NOT NULL OR lower(coalesce(utm->>'utm_source','')) IN ('facebook','fb','instagram','ig','meta','messenger','msg','an'))
+        AND (${inc} OR (nullif(utm->>'utm_campaign','') IS NOT NULL AND lower(coalesce(utm->>'utm_source','')) IN ('facebook','fb','instagram','ig','meta','messenger','msg','an')))
       GROUP BY max_step ORDER BY max_step`;
 
     const sessions = await sql`SELECT count(*)::int AS n FROM sessions
       WHERE created_at >= ${fromISO} AND created_at < ${toISO}
-        AND (${inc} OR (utm->>'fbclid') IS NOT NULL OR lower(coalesce(utm->>'utm_source','')) IN ('facebook','fb','instagram','ig','meta','messenger','msg','an'))`;
+        AND (${inc} OR (nullif(utm->>'utm_campaign','') IS NOT NULL AND lower(coalesce(utm->>'utm_source','')) IN ('facebook','fb','instagram','ig','meta','messenger','msg','an')))`;
 
     const leads = await sql`SELECT count(*)::int AS n FROM leads
       WHERE created_at >= ${fromISO} AND created_at < ${toISO} AND status <> 'teste'
-        AND (${inc} OR (utm->>'fbclid') IS NOT NULL OR lower(coalesce(utm->>'utm_source','')) IN ('facebook','fb','instagram','ig','meta','messenger','msg','an'))`;
+        AND (${inc} OR (nullif(utm->>'utm_campaign','') IS NOT NULL AND lower(coalesce(utm->>'utm_source','')) IN ('facebook','fb','instagram','ig','meta','messenger','msg','an')))`;
 
     // leads por anúncio (UTM)
     const byAd = await sql`
@@ -38,14 +38,14 @@ module.exports = async (req, res) => {
              count(*)::int AS leads
       FROM leads
       WHERE created_at >= ${fromISO} AND created_at < ${toISO} AND status <> 'teste'
-        AND (${inc} OR (utm->>'fbclid') IS NOT NULL OR lower(coalesce(utm->>'utm_source','')) IN ('facebook','fb','instagram','ig','meta','messenger','msg','an'))
+        AND (${inc} OR (nullif(utm->>'utm_campaign','') IS NOT NULL AND lower(coalesce(utm->>'utm_source','')) IN ('facebook','fb','instagram','ig','meta','messenger','msg','an')))
       GROUP BY 1,2,3 ORDER BY leads DESC LIMIT 100`;
 
     // leads por perfil
     const byProfile = await sql`
       SELECT coalesce(profile,'—') AS profile, count(*)::int AS n
       FROM leads WHERE created_at >= ${fromISO} AND created_at < ${toISO} AND status <> 'teste'
-        AND (${inc} OR (utm->>'fbclid') IS NOT NULL OR lower(coalesce(utm->>'utm_source','')) IN ('facebook','fb','instagram','ig','meta','messenger','msg','an'))
+        AND (${inc} OR (nullif(utm->>'utm_campaign','') IS NOT NULL AND lower(coalesce(utm->>'utm_source','')) IN ('facebook','fb','instagram','ig','meta','messenger','msg','an')))
       GROUP BY 1 ORDER BY n DESC`;
 
     res.status(200).json({ funnel, sessions: sessions[0].n, leads: leads[0].n, byAd, byProfile });

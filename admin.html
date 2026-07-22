@@ -49,6 +49,12 @@
   .presets{display:flex;gap:6px}
   .preset{border:1.5px solid var(--line);background:#fff;border-radius:9px;padding:9px 12px;font-size:13px;font-weight:650;cursor:pointer;color:var(--muted)}
   .preset:hover{border-color:var(--accent-2);color:var(--accent)}
+  .mswitch{display:inline-flex;align-items:center;gap:9px;cursor:pointer;font-size:13px;font-weight:650;color:var(--ink);user-select:none}
+  .mswitch input{position:absolute;opacity:0;width:0;height:0}
+  .mswitch .track{width:42px;height:24px;border-radius:99px;background:var(--line);position:relative;transition:.2s;flex:0 0 auto}
+  .mswitch .track::after{content:"";position:absolute;top:2.5px;left:2.5px;width:19px;height:19px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:.2s}
+  .mswitch input:checked + .track{background:linear-gradient(135deg,var(--accent),var(--accent-2))}
+  .mswitch input:checked + .track::after{transform:translateX(18px)}
   /* funil */
   .fstep{margin-bottom:14px}
   .fl{display:flex;justify-content:space-between;font-size:13.5px;font-weight:650;margin-bottom:5px}
@@ -148,7 +154,7 @@
 
 <script>
 const app=document.getElementById('app');
-let TAB='analytics', LEADS=[], ANALYTICS=null, CAMP=null, crmView='cards', dFrom, dTo;
+let TAB='analytics', LEADS=[], ANALYTICS=null, CAMP=null, crmView='cards', anMetaOnly=false, dFrom, dTo;
 const PERFIS=['Perfeccionista','Evitativo','Impulsivo','Sobrecarregado','Indeciso'];
 const EMO={Perfeccionista:'🎯',Evitativo:'🚪',Impulsivo:'⚡',Sobrecarregado:'🌀',Indeciso:'🧭'};
 // rótulos das etapas do funil (mesma ordem do FLOW do quiz)
@@ -222,10 +228,12 @@ function renderAnalytics(){
       <button class="btn sm" onclick="applyDates()">Aplicar</button>
       ${datePresetBtns()}
     </div>
+    <label class="mswitch" style="margin:2px 2px 16px" title="Só sessões com fbclid ou utm_source de Facebook/Instagram"><input type="checkbox" ${anMetaOnly?'checked':''} onchange="toggleMetaOnly(this.checked)"><span class="track"></span><span class="lbl">Mostrar só tráfego do Meta (anúncios)</span></label>
     <div id="an-body">${ANALYTICS?analyticsBody():'<div class="loading">Carregando métricas…</div>'}</div>`;
   if(!ANALYTICS) loadAnalytics();
 }
 function applyDates(){ dFrom=document.getElementById('df').value; dTo=document.getElementById('dt').value; loadAnalytics(); }
+function toggleMetaOnly(v){ anMetaOnly=v; ANALYTICS=null; loadAnalytics(); }
 function datePresetBtns(){
   const b=(k,l)=>`<button class="preset" onclick="setDatePreset('${k}')">${l}</button>`;
   return `<div class="presets">${b('hoje','Hoje')}${b('ontem','Ontem')}${b('mes','Este mês')}${b('mespassado','Mês passado')}${b('7','7 dias')}${b('30','30 dias')}${b('tudo','Tudo')}</div>`;
@@ -243,7 +251,7 @@ function setDatePreset(k){ const r=datePreset(k); dFrom=r.from; dTo=r.to;
   if(TAB==='campanhas'){ CAMP=null; renderCampaigns(); } else { ANALYTICS=null; renderAnalytics(); } }
 async function loadAnalytics(){
   const body=document.getElementById('an-body'); if(body) body.innerHTML='<div class="loading">Carregando métricas…</div>';
-  const r=await fetch(`/api/analytics?from=${dFrom}&to=${dTo}`);
+  const r=await fetch(`/api/analytics?from=${dFrom}&to=${dTo}${anMetaOnly?'&source=meta':''}`);
   if(r.status===401){ renderLogin(); return; }
   ANALYTICS=r.ok?await r.json():{funnel:[],sessions:0,leads:0,byAd:[],byProfile:[]};
   const b=document.getElementById('an-body'); if(b) b.innerHTML=analyticsBody();

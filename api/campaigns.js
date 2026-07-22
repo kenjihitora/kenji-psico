@@ -91,6 +91,7 @@ module.exports = async (req, res) => {
       return {
         id: d[idField], name: d[nameField], status: e.status || null,
         spend: m.spend,
+        clicks: m.clicks,
         vendas: m.vendas,
         faturamento: m.fat,
         roas: pick(d.purchase_roas, ['omni_purchase', 'purchase']) || (m.spend ? m.fat / m.spend : 0),
@@ -111,7 +112,7 @@ module.exports = async (req, res) => {
       return a;
     }, { spend: 0, impr: 0, clicks: 0, vendas: 0, fat: 0, ic: 0, v3: 0, p75: 0 });
     const totals = {
-      spend: T.spend, vendas: T.vendas, faturamento: T.fat,
+      spend: T.spend, clicks: T.clicks, vendas: T.vendas, faturamento: T.fat,
       roas: T.spend ? T.fat / T.spend : 0,
       cpa: T.vendas ? T.spend / T.vendas : null,
       custo_ic: T.ic ? T.spend / T.ic : null,

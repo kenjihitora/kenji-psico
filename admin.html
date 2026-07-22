@@ -114,7 +114,7 @@
   .hl{color:var(--accent)}
   .fineprint{font-size:12px;color:var(--muted);line-height:1.6;margin:6px 2px 0}
   .metricwrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
-  table.mt{min-width:1140px;font-size:13.5px}
+  table.mt{min-width:1440px;font-size:13.5px}
   table.mt th,table.mt td{padding:12px 14px}
   table.mt th.num,table.mt td.num{text-align:right;white-space:nowrap}
   table.mt td.nm{white-space:nowrap;max-width:260px;overflow:hidden;text-overflow:ellipsis}
@@ -334,6 +334,10 @@ function mrow(c,cur,drillable){
   return `<tr class="${drillable?'clk':''}"${drillable?` onclick="drill('${esc(String(c.id))}')"`:''}>
     <td class="nm">${nm}</td>
     <td class="num">${cMoney(c.spend,cur)}</td>
+    <td class="num">${cInt(c.our_leads)}</td>
+    <td class="num">${c.cpl!=null?cMoney(c.cpl,cur):'—'}</td>
+    <td class="num">${cPct(c.start_rate,1)}</td>
+    <td class="num">${cPct(c.vsl_rate,1)}</td>
     <td class="num">${c.vendas?cInt(c.vendas):'—'}</td>
     <td class="num">${c.faturamento?cMoney(c.faturamento,cur):'—'}</td>
     <td class="num">${cRoas(c.roas)}</td>
@@ -370,14 +374,14 @@ function campaignsBody(){
     `<div class="panel" style="padding:0;overflow:hidden">
       <div class="metricwrap"><table class="mt">
         <thead><tr>
-          <th>${head}</th><th class="num">Gasto</th><th class="num">Vendas</th><th class="num">Faturam.</th><th class="num">ROAS</th>
+          <th>${head}</th><th class="num">Gasto</th><th class="num">Leads</th><th class="num">CPL</th><th class="num">Início</th><th class="num">VSL</th><th class="num">Vendas</th><th class="num">Faturam.</th><th class="num">ROAS</th>
           <th class="num">CPA</th><th class="num">Custo/IC</th><th class="num">Cliques</th><th class="num">CPC</th><th class="num">CTR link</th>
           <th class="num">Hook</th><th class="num">Body</th><th class="num">Duração</th>
         </tr></thead>
         <tbody>
           ${rows.map(c=>mrow(c,cur,drillable)).join('')}
           <tr class="totrow"><td class="nm">TOTAL</td>
-            <td class="num">${cMoney(t.spend,cur)}</td><td class="num">${t.vendas?cInt(t.vendas):'—'}</td>
+            <td class="num">${cMoney(t.spend,cur)}</td><td class="num">${cInt(t.our_leads)}</td><td class="num">${t.cpl!=null?cMoney(t.cpl,cur):'—'}</td><td class="num">${cPct(t.start_rate,1)}</td><td class="num">${cPct(t.vsl_rate,1)}</td><td class="num">${t.vendas?cInt(t.vendas):'—'}</td>
             <td class="num">${t.faturamento?cMoney(t.faturamento,cur):'—'}</td><td class="num">${cRoas(t.roas)}</td>
             <td class="num">${t.cpa!=null?cMoney(t.cpa,cur):'—'}</td><td class="num">${t.custo_ic!=null?cMoney(t.custo_ic,cur):'—'}</td>
             <td class="num">${cInt(t.clicks)}</td><td class="num">${t.cpc!=null?cMoney(t.cpc,cur):'—'}</td><td class="num">${cPct(t.ctr)}</td>
@@ -389,12 +393,14 @@ function campaignsBody(){
   return `${campCrumb()}
     <div class="stats">
       <div class="stat"><div class="n">${cMoney(t.spend,cur)}</div><div class="l">Valor gasto</div></div>
+      <div class="stat"><div class="n st-novo">${cInt(t.our_leads)}</div><div class="l">Leads</div></div>
+      <div class="stat"><div class="n" style="color:var(--accent)">${t.cpl!=null?cMoney(t.cpl,cur):'—'}</div><div class="l">Custo por lead</div></div>
+      <div class="stat"><div class="n">${cPct(t.start_rate,1)}</div><div class="l">Início do quiz</div><div class="sub">passou da 1ª tela</div></div>
       <div class="stat"><div class="n st-vendido">${t.vendas?cInt(t.vendas):'—'}</div><div class="l">Vendas</div></div>
-      <div class="stat"><div class="n">${t.faturamento?cMoney(t.faturamento,cur):'—'}</div><div class="l">Faturamento</div></div>
       <div class="stat"><div class="n" style="color:var(--accent)">${cRoas(t.roas)}</div><div class="l">ROAS</div></div>
     </div>
     ${table}
-    <p class="fineprint">💡 Dados do Meta no nível de <b>${noun}</b>. <b>Vendas / Faturamento / ROAS / CPA</b> aparecem quando o Meta recebe evento de <b>Compra</b> (mesma regra do Gerenciador). <b>Hook</b> = views de 3s ÷ impressões · <b>Body</b> = views de 75% ÷ impressões · <b>Duração</b> = dias desde o início.</p>`;
+    <p class="fineprint">💡 <b>Leads · CPL · Início · VSL</b> vêm do NOSSO funil (cruzados por UTM no nível de <b>${noun}</b>, ignorando teste): <b>Início</b> = % das sessões que passaram da 1ª tela · <b>VSL</b> = % que chegaram na VSL (forward-only). O resto é do Meta: <b>Vendas / Faturamento / ROAS / CPA</b> dependem do evento de <b>Compra</b> · <b>Hook</b> = views 3s ÷ impressões · <b>Body</b> = views 75% ÷ impressões · <b>Duração</b> = dias desde o início.</p>`;
 }
 
 /* ---------- CRM ---------- */

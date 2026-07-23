@@ -163,7 +163,7 @@ const STEPS=['Abriu o quiz','Nome','Gênero','Idade','Pergunta 1','Pergunta 2','
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 function fmtDate(s){try{return new Date(s).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});}catch{return s;}}
 function waDigits(w){return String(w||'').replace(/\D/g,'');}
-function iso(d){return d.toISOString().slice(0,10);}
+function iso(d){return new Date(d.getTime()-3*3600e3).toISOString().slice(0,10);} // data no fuso do Brasil (UTC-3)
 function daysAgo(n){return iso(new Date(Date.now()-n*864e5));}
 
 async function boot(){
@@ -239,11 +239,12 @@ function datePresetBtns(){
   return `<div class="presets">${b('hoje','Hoje')}${b('ontem','Ontem')}${b('mes','Este mês')}${b('mespassado','Mês passado')}${b('7','7 dias')}${b('30','30 dias')}${b('tudo','Tudo')}</div>`;
 }
 function datePreset(k){
-  const n=new Date(), t=iso(n), Y=n.getUTCFullYear(), M=n.getUTCMonth();
+  const b=new Date(Date.now()-3*3600e3), Y=b.getUTCFullYear(), M=b.getUTCMonth(), t=iso(new Date()); // "agora" no Brasil
+  const pad=x=>String(x).padStart(2,'0'), first=(y,m)=>`${y}-${pad(m+1)}-01`;
   if(k==='hoje') return {from:t,to:t};
-  if(k==='ontem'){ const y=iso(new Date(n.getTime()-864e5)); return {from:y,to:y}; }
-  if(k==='mes') return {from:iso(new Date(Date.UTC(Y,M,1))), to:t};
-  if(k==='mespassado') return {from:iso(new Date(Date.UTC(Y,M-1,1))), to:iso(new Date(Date.UTC(Y,M,0)))};
+  if(k==='ontem'){ const y=iso(new Date(Date.now()-864e5)); return {from:y,to:y}; }
+  if(k==='mes') return {from:first(Y,M), to:t};
+  if(k==='mespassado'){ const py=M===0?Y-1:Y, pm=M===0?11:M-1, last=new Date(Date.UTC(Y,M,0)).getUTCDate(); return {from:first(py,pm), to:`${py}-${pad(pm+1)}-${pad(last)}`}; }
   if(k==='tudo') return {from:daysAgo(365), to:t};
   return {from:daysAgo(Number(k)||30), to:t};
 }

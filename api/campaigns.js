@@ -65,8 +65,8 @@ module.exports = async (req, res) => {
     const insUrl = `${G}/${insObj}/insights?level=${level}&fields=${fields}&time_range=${tr}&limit=500&access_token=${token}`;
 
     // Nossos dados (leads/sessions do quiz) por UTM, no mesmo período
-    const rangeStart = new Date(from + 'T00:00:00').toISOString();
-    const rangeEnd = new Date(new Date(to + 'T00:00:00').getTime() + 864e5).toISOString();
+    const rangeStart = new Date(from + 'T00:00:00-03:00').toISOString();
+    const rangeEnd = new Date(new Date(to + 'T00:00:00-03:00').getTime() + 864e5).toISOString();
     await ensureTable().catch(() => {});
     const [ins, ent, leadRows, sessRows] = await Promise.all([
       getJSON(insUrl),

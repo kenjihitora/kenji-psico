@@ -8,8 +8,8 @@ module.exports = async (req, res) => {
   try {
     await ensureTable();
     const q = req.query || {};
-    const fromD = q.from ? new Date(q.from + 'T00:00:00') : new Date(Date.now() - 30 * 864e5);
-    const toD   = q.to   ? new Date(q.to   + 'T00:00:00') : new Date();
+    const fromD = q.from ? new Date(q.from + 'T00:00:00-03:00') : new Date(Date.now() - 30 * 864e5);
+    const toD   = q.to   ? new Date(q.to   + 'T00:00:00-03:00') : new Date();
     const toEnd = new Date(toD.getTime() + 864e5); // fim do dia (exclusivo)
     const fromISO = fromD.toISOString(), toISO = toEnd.toISOString();
     const inc = q.source !== 'meta'; // inc=true → todos; inc=false → só Meta (o filtro abaixo só "morde" quando inc=false)

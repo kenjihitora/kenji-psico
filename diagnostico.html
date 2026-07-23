@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>O seu Diagnóstico Procrastinador · Kenji Hirota</title>
+<meta property="og:title" content="O seu Diagnóstico Procrastinador">
+<meta property="og:description" content="Um raio-x profundo do padrão que te faz travar — e como começar a interromper. Por Kenji Hirota, psicólogo.">
+<meta property="og:type" content="article">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#211f38; --muted:#6b6a80; --line:#eeeaf7; --card:#ffffff;
+    --acc:#6d4bf5; --soft:#efeafe;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased}
+  body{font-family:"Fraunces",Georgia,serif;color:var(--ink);
+    background:linear-gradient(180deg,#f3f0fe,#eef3ff);min-height:100vh;line-height:1.75;font-size:17.5px}
+  .prog{position:fixed;top:0;left:0;height:4px;width:0;background:linear-gradient(90deg,var(--acc),#9068ff);z-index:50;transition:width .1s}
+  .sheet{max-width:680px;margin:0 auto;padding:0 18px 80px}
+  .head-ui{font-family:"Poppins",sans-serif}
+
+  /* topo */
+  .hero{text-align:center;padding:46px 0 8px}
+  .emoji{width:104px;height:104px;border-radius:50%;background:var(--card);display:grid;place-items:center;
+    font-size:54px;margin:0 auto 20px;box-shadow:0 24px 50px -22px var(--acc),0 0 0 10px var(--soft)}
+  .kick{font-family:"Poppins",sans-serif;font-size:12.5px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--acc);margin-bottom:10px}
+  h1{font-family:"Poppins",sans-serif;font-size:40px;font-weight:800;line-height:1.05;letter-spacing:-1px;margin-bottom:18px}
+  h1 .lt{color:var(--muted);font-weight:600;display:block;font-size:20px;letter-spacing:0;margin-bottom:2px}
+  .ess{font-size:20px;color:#4a4863;font-style:italic;line-height:1.5;max-width:560px;margin:0 auto}
+
+  /* corpo (folha branca) */
+  .paper{background:var(--card);border-radius:26px;box-shadow:0 30px 80px -40px rgba(70,45,150,.4);
+    padding:44px 40px;margin-top:34px}
+  h2{font-family:"Poppins",sans-serif;font-size:24px;font-weight:800;letter-spacing:-.4px;line-height:1.2;
+    margin:38px 0 16px;color:var(--ink)}
+  h2:first-child{margin-top:0}
+  h2 .n{color:var(--acc)}
+  p{margin:0 0 18px}
+  .lead-p{font-size:18.5px}
+  b,strong{font-weight:600;color:#161528}
+
+  /* lista de reconhecimento */
+  .recon{list-style:none;margin:6px 0 8px}
+  .recon li{display:flex;gap:13px;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--line);font-size:17px}
+  .recon li:last-child{border-bottom:0}
+  .recon li::before{content:"✓";flex:0 0 26px;width:26px;height:26px;border-radius:50%;background:var(--soft);color:var(--acc);
+    font-family:"Poppins",sans-serif;font-weight:800;font-size:13px;display:grid;place-items:center;margin-top:2px}
+
+  /* callout */
+  .callout{background:var(--soft);border-radius:18px;padding:22px 24px;margin:24px 0;font-size:18px;line-height:1.55}
+  .callout b{color:var(--acc)}
+
+  /* ciclo */
+  .cycle{counter-reset:c;margin:8px 0 4px}
+  .cycle li{list-style:none;counter-increment:c;display:flex;gap:15px;align-items:flex-start;padding:9px 0;font-size:16.5px}
+  .cycle li::before{content:counter(c);flex:0 0 30px;width:30px;height:30px;border-radius:50%;
+    background:var(--acc);color:#fff;font-family:"Poppins",sans-serif;font-weight:700;font-size:14px;display:grid;place-items:center}
+
+  /* técnicas */
+  .tech{border:1px solid var(--line);border-radius:20px;padding:24px 24px 20px;margin:18px 0;position:relative}
+  .tech .tn{position:absolute;top:-16px;left:22px;width:34px;height:34px;border-radius:11px;
+    background:linear-gradient(140deg,var(--acc),#9068ff);color:#fff;font-family:"Poppins",sans-serif;font-weight:800;
+    display:grid;place-items:center;font-size:16px;box-shadow:0 8px 18px -8px var(--acc)}
+  .tech h3{font-family:"Poppins",sans-serif;font-size:19px;font-weight:700;margin:8px 0 10px;line-height:1.25}
+  .pratica{background:#faf8ff;border-left:4px solid var(--acc);border-radius:0 12px 12px 0;padding:14px 16px;margin-top:14px;font-size:16px}
+  .pratica .pl{font-family:"Poppins",sans-serif;font-size:11.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--acc);display:block;margin-bottom:5px}
+
+  /* CTA + assinatura */
+  .cta{background:linear-gradient(160deg,var(--soft),#f4f0ff);border-radius:22px;padding:30px 28px;margin:36px 0 0;text-align:center}
+  .oferta{display:inline-block;font-family:"Poppins",sans-serif;font-size:11.5px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:#fff;background:linear-gradient(135deg,var(--acc),#9068ff);padding:6px 14px;border-radius:999px;margin-bottom:14px}
+  .cta-sub{font-family:"Poppins",sans-serif;font-size:12.5px;color:var(--muted);margin-top:12px;font-weight:500}
+  .cta h3{font-family:"Poppins",sans-serif;font-size:21px;font-weight:800;margin-bottom:10px;line-height:1.25}
+  .cta p{font-size:16.5px;color:#4a4863}
+  .btn{display:inline-block;font-family:"Poppins",sans-serif;font-weight:700;font-size:16px;color:#fff;text-decoration:none;
+    background:linear-gradient(135deg,var(--acc),#9068ff);padding:15px 30px;border-radius:14px;margin-top:16px;
+    box-shadow:0 16px 34px -14px var(--acc)}
+  .sign{display:flex;align-items:center;justify-content:center;gap:14px;margin:40px 0 0;text-align:left}
+  .sign .k{width:46px;height:46px;border-radius:14px;background:linear-gradient(140deg,var(--acc),#9068ff);color:#fff;
+    font-family:"Poppins",sans-serif;font-weight:800;font-size:22px;display:grid;place-items:center;flex:0 0 auto}
+  .sign .who{font-family:"Poppins",sans-serif;font-weight:700;font-size:16px;line-height:1.3}
+  .sign .who span{display:block;font-weight:500;font-size:13px;color:var(--muted)}
+  .soon{text-align:center;padding:60px 20px;color:var(--muted);font-size:18px}
+
+  @media(max-width:560px){
+    body{font-size:17px}
+    h1{font-size:32px} .ess{font-size:18px}
+    .paper{padding:30px 22px;border-radius:22px}
+    .hero{padding:34px 0 6px}
+    .emoji{width:88px;height:88px;font-size:44px}
+  }
+</style>
+</head>
+<body>
+  <div class="prog" id="prog"></div>
+  <div class="sheet" id="app"></div>
+
+<script>
+const CONTENT = {
+  perfeccionista: {
+    emoji:'🎯', nome:'Perfeccionista', acc:'#6d4bf5', soft:'#efeafe',
+    essencia:'Você não trava por falta de vontade. Trava porque a régua que você usa é tão alta que começar — ou terminar — vira uma ameaça.',
+    reconhece:[
+      'Você revira cada detalhe antes de entregar — e, às vezes, acaba não entregando.',
+      '“Se eu não vou fazer do meu jeito, prefiro nem começar.”',
+      'Adiar começar dá alívio, porque começar mal dói mais do que não começar.',
+      'Quando termina, quase nunca sente que ficou bom o suficiente.',
+      'Os outros te acham caprichoso(a). Por dentro, é cansaço.'
+    ],
+    mecanismo:[
+      'O seu cérebro aprendeu a associar <b>“fazer”</b> com <b>“risco de não ser bom o suficiente”</b>. E não-ser-bom-o-suficiente, pra você, não é um errinho — é uma ameaça à sua própria imagem.',
+      'Então, toda vez que você vai começar, um desconforto sobe: ansiedade, tensão, aquele frio de “e se ficar ruim?”. E adiar <b>desliga esse desconforto na hora</b>. É alívio imediato.',
+      'O problema é que o cérebro é burro no curto prazo: ele aprende que adiar = alívio, e repete. Não é preguiça. É o seu cérebro te protegendo de uma emoção agora — e cobrando caro depois.'
+    ],
+    callout:'Procrastinar, pra você, não é fugir do trabalho. É fugir da <b>ansiedade</b> que a régua altíssima gera antes do trabalho.',
+    mentira:[
+      'Te venderam que perfeccionismo é qualidade — aquele clássico “meu maior defeito é ser perfeccionista demais”. Mas repara: o perfeccionismo que te <b>trava</b> não te faz entregar coisas perfeitas. Te faz entregar atrasado, correndo, ou não entregar.',
+      'A ciência é clara em dois pontos: procrastinar <b>não tem relação com inteligência</b> (gente brilhante trava do mesmo jeito), e o perfeccionismo, sozinho, nem é o vilão. O vilão é a <b>ansiedade</b> que a régua impossível cria — e a fuga dela.',
+      'Ou seja: você <b>não precisa baixar seus padrões</b>. Você precisa parar de deixar o medo de errar decidir a hora em que você começa.'
+    ],
+    ciclo:[
+      'Chega uma tarefa importante.',
+      'Sobe o pensamento: “tem que sair perfeito”.',
+      'A ansiedade aumenta.',
+      'Você adia — e sente alívio na hora.',
+      'O prazo aperta.',
+      'Você faz correndo, abaixo do que era capaz.',
+      'Confirma pra si mesmo: “eu não sou bom o suficiente” — e o ciclo recomeça, mais forte.'
+    ],
+    cicloFecho:'Cada volta reforça o medo. É por isso que “só se esforçar mais” não resolve — te empurra mais fundo no mesmo ciclo.',
+    movimentos:[
+      { titulo:'Separe “começar” de “ficar perfeito”',
+        texto:'A sua trava não é fazer — é fazer <b>bem logo de cara</b>. Então dê a si mesmo permissão explícita de fazer uma versão feia primeiro. Ruim é editável; página em branco não é.',
+        pratica:'Antes de abrir o projeto, escreva no topo: <b>“Rascunho horrível permitido.”</b> Sua única meta na primeira sessão é produzir algo ruim.' },
+      { titulo:'Use o “se-então” (a técnica com mais evidência pra isso)',
+        texto:'Em vez de “vou fazer hoje” (vago, deixa a ansiedade decidir), defina o gatilho exato. Isso tira a decisão do momento — e com ela, o medo.',
+        pratica:'Escreva agora, pra 1 tarefa: <b>“SE forem 9h e eu sentar na mesa, ENTÃO abro o documento e escrevo por 10 minutos, mesmo que saia lixo.”</b> Estudos mostram que esse formato mais que dobra a chance de você agir.' },
+      { titulo:'Troque autocrítica por autocompaixão',
+        texto:'Parece contraintuitivo, mas é dos achados mais consistentes da área: quem se <b>perdoa</b> por ter procrastinado procrastina <b>menos</b> na próxima. A autocrítica só alimenta a ansiedade que te trava.',
+        pratica:'Da próxima vez que travar, troque “que ridículo, de novo” por: <b>“faz sentido eu ter travado — a régua tava impossível. E mesmo assim vou dar um passo pequeno agora.”</b>' }
+    ],
+    fecho:{
+      titulo:'Perceber o padrão já muda o jogo',
+      texto:'Agora, quando a ansiedade subir antes de você começar, você vai reconhecer: “ah, é o Perfeccionista tentando me proteger.” E vai poder escolher diferente. E se você quiser um método passo a passo pra interromper esse ciclo de vez, é exatamente isso que o <b>Fim da Procrastinação</b> te entrega.',
+      botao:'Quero destravar de vez'
+    }
+  },
+
+  evitativo: {
+    emoji:'🚪', nome:'Evitativo', acc:'#0ea5a4', soft:'#e2f6f5',
+    essencia:'Pra você, a tarefa não é só uma tarefa — ela carrega um desconforto. E fugir dá alívio na hora. Não é preguiça: é o seu cérebro escolhendo não sentir agora, e pagando caro depois.',
+    reconhece:[
+      'Tem tarefas que você “esquece” de propósito — só de pensar nelas dá um peso.',
+      'Você se ocupa com mil coisas pequenas pra não encarar A coisa importante.',
+      'Adiar te dá um alívio imediato… que logo vira culpa.',
+      'Deixa e-mail, ligação ou decisão “pra depois” — e o depois nunca chega.',
+      'No fundo, não é que você não consiga. É que encarar aquilo dá um mal-estar que você evita.'
+    ],
+    mecanismo:[
+      'O seu cérebro marcou certas tarefas como <b>“fonte de desconforto”</b> — pode ser medo, tédio, insegurança, ou só aquela sensação chata e difícil de nomear.',
+      'E o cérebro tem uma regra simples: fugir do desconforto <b>agora</b>. Adiar aquela tarefa desliga o mal-estar na hora — é um alívio real, imediato.',
+      'Só que esse alívio é uma armadilha. Cada fuga ensina o cérebro que aquilo é perigoso mesmo, e a tarefa fica cada vez mais “pesada”. Não é preguiça — é evitação emocional no automático.'
+    ],
+    callout:'Você não está fugindo do trabalho. Está fugindo da <b>emoção</b> que o trabalho traz. E toda vez que você foge, ela fica maior.',
+    mentira:[
+      'Te chamaram de preguiçoso, desorganizado, de quem “não se esforça”. Mas você já reparou que consegue trabalhar horas em coisas que <b>não</b> te dão desconforto? O problema nunca foi capacidade nem energia.',
+      'A ciência mostra que procrastinar é, na raiz, uma falha de <b>regulação emocional</b> — você prioriza se sentir bem agora em vez de fazer o que importa. Não é caráter. É um mecanismo, e mecanismo se destrava.',
+      'A saída não é “criar disciplina”. É aprender a ficar com o desconforto por tempo suficiente pra começar — porque ele quase sempre é menor do que a sua cabeça pinta.'
+    ],
+    ciclo:[
+      'Aparece a tarefa importante.',
+      'Vem o desconforto (medo, tédio, peso).',
+      'Você desvia pra outra coisa — e sente alívio.',
+      'A tarefa continua ali, agora maior na sua cabeça.',
+      'Bate a culpa.',
+      'A culpa vira mais desconforto.',
+      'Você foge de novo — e o ciclo se fecha, mais forte.'
+    ],
+    cicloFecho:'Repara: quanto mais você foge, mais assustadora a tarefa fica. O problema não é a tarefa. É o hábito de não encarar a emoção.',
+    movimentos:[
+      { titulo:'Nomeie a emoção antes de fugir',
+        texto:'Quando bater a vontade de desviar, pare 5 segundos e diga qual emoção é: “isso é medo”, “isso é tédio”, “isso é insegurança”. Só <b>nomear</b> já reduz a força dela — é um dos efeitos mais estudados da regulação emocional.',
+        pratica:'Da próxima vez que for desviar, complete a frase: <b>“Estou fugindo disso porque estou sentindo ___.”</b> Não precisa resolver a emoção. Só reconhecer.' },
+      { titulo:'Regra dos 5 minutos: encare só o começo',
+        texto:'Você não precisa fazer a tarefa inteira. Precisa só ficar com o desconforto por 5 minutos. Combine: “faço só 5 minutos e posso parar.” Quase sempre, quando o desconforto passa, você continua.',
+        pratica:'Escolha a tarefa que você mais tá fugindo. Timer de <b>5 minutos</b> e faz SÓ isso. A meta não é terminar — é provar pro seu cérebro que dá pra ficar.' },
+      { titulo:'Reavalie o “difícil”',
+        texto:'Seu cérebro exagera: “isso vai ser horrível.” Antes de fugir, pergunte quão difícil isso <b>realmente</b> é, de 0 a 10 — e o que de pior pode acontecer. Quase sempre a resposta é bem menor que o pânico.',
+        pratica:'Escreva a tarefa que te dá peso e responda: <b>“O pior que pode acontecer é ___.”</b> Ver no papel costuma murchar o monstro.' }
+    ],
+    fecho:{
+      titulo:'O desconforto é menor do que a fuga',
+      texto:'Toda vez que você encara — mesmo por 5 minutos — ensina o seu cérebro que aquilo não era perigoso. E a tarefa encolhe. Se você quiser um caminho estruturado pra treinar isso, o <b>Fim da Procrastinação</b> foi feito pra te tirar do ciclo da fuga, passo a passo.',
+      botao:'Quero sair do ciclo da fuga'
+    }
+  },
+
+  impulsivo: {
+    emoji:'⚡', nome:'Impulsivo', acc:'#ef8b1e', soft:'#fdefdc',
+    essencia:'O seu foco não é fraco — ele é sequestrado. Sempre aparece algo mais prazeroso agora, e o “só cinco minutos” vira o dia inteiro. Não falta energia: sobram estímulos.',
+    reconhece:[
+      'Você começa uma coisa, lembra de outra, abre o celular… e quando vê, o dia foi.',
+      '“Só cinco minutinhos” é a frase que mais te sabota.',
+      'Você troca de tarefa o tempo todo, buscando a que dá mais prazer agora.',
+      'Rende de verdade só quando a água bate na bunda — a adrenalina do prazo te move.',
+      'Você tem mil abas abertas — na tela e na cabeça.'
+    ],
+    mecanismo:[
+      'O seu cérebro é ótimo numa coisa: buscar <b>recompensa imediata</b>. Notificação, vídeo curto, um docinho, uma tarefa mais divertida — tudo isso entrega prazer AGORA.',
+      'A tarefa importante, quase sempre, só recompensa lá na frente. E, pro cérebro, o “agora” sempre grita mais alto que o “depois”.',
+      'Então não é que você não tenha foco. É que o importante-chato perde toda hora pro urgente-prazeroso. É uma disputa desigual — e dá pra virar o jogo mudando as regras, não a força de vontade.'
+    ],
+    callout:'O seu problema não é falta de foco. É <b>excesso de estímulos</b> disputando a sua atenção — e o importante quase sempre perde pro que dá prazer na hora.',
+    mentira:[
+      'Te disseram que você é disperso, que “não se concentra”, que falta disciplina. Mas você passa horas focado numa série, num jogo, numa conversa boa. Foco você tem — ele só vai pro que dá prazer imediato.',
+      'A ciência chama isso de impulsividade e <b>desconto do futuro</b>: a gente desvaloriza recompensas distantes. Não é defeito de caráter — é como o cérebro humano funciona, só que mais forte em você.',
+      'A saída não é “ter mais disciplina”. É tornar o importante mais fácil e imediato — e o prazeroso mais difícil de alcançar na hora errada.'
+    ],
+    ciclo:[
+      'Você senta pra fazer o que importa.',
+      'Aparece um estímulo mais prazeroso (celular, outra tarefa, uma ideia nova).',
+      '“Só cinco minutos” — e você troca.',
+      'O prazer imediato vem, e o importante fica.',
+      'O tempo voa.',
+      'Bate o arrependimento (“de novo isso”).',
+      'Você busca outro prazer rápido pra fugir do arrependimento — e o ciclo gira.'
+    ],
+    cicloFecho:'Cada “só cinco minutos” treina o seu cérebro a buscar o prazer fácil. Não é preguiça — é um cérebro superestimulado tentando se satisfazer o tempo todo.',
+    movimentos:[
+      { titulo:'Tire o estímulo do alcance',
+        texto:'Você não vence a tentação resistindo — vence tirando ela da frente. Se o celular tá na mesa, você <b>vai</b> pegar. Não confie na força de vontade; mude o ambiente.',
+        pratica:'Antes de começar, deixa o celular <b>em outro cômodo</b> (não no bolso, não virado pra baixo — em OUTRO cômodo). E fecha as abas que não são a tarefa.' },
+      { titulo:'Empacote o chato com o prazeroso',
+        texto:'Junte a tarefa importante com algo que você curte, pra ela também dar prazer agora. É o <b>temptation bundling</b>: o prazer só acontece junto com a tarefa.',
+        pratica:'Escolha um prazer que você SÓ vai se permitir durante a tarefa (um café especial, uma playlist, um lugar gostoso): <b>“só faço X junto com a tarefa Y.”</b>' },
+      { titulo:'Blocos curtos com recompensa no fim',
+        texto:'Seu cérebro precisa da recompensa <b>perto</b>. Trabalhe em blocos de 25 minutos e se dê um prazer rápido ao terminar cada um — assim o importante também passa a recompensar na hora.',
+        pratica:'Timer de <b>25 minutos</b> na tarefa. Ao apitar, 5 minutos do que quiser (celular, água, esticar). Depois, outro bloco.' }
+    ],
+    fecho:{
+      titulo:'Você não precisa de mais força de vontade',
+      texto:'Precisa de um ambiente que jogue a seu favor e de recompensas mais perto. Quando o importante fica fácil e imediato, o “só cinco minutos” perde a força. O <b>Fim da Procrastinação</b> te ensina a montar esse sistema passo a passo.',
+      botao:'Quero recuperar o meu foco'
+    }
+  },
+
+  sobrecarregado: {
+    emoji:'🌀', nome:'Sobrecarregado', acc:'#df3b7d', soft:'#fce6ef',
+    essencia:'Não é que você não queira começar. É que, com tudo gritando junto na sua cabeça, o cérebro simplesmente congela. A paralisia é sintoma do excesso — não da preguiça.',
+    reconhece:[
+      'Você tem tanta coisa pra fazer que não consegue fazer NENHUMA.',
+      '“Nem sei por onde começar” — e aí não começa.',
+      'Sua cabeça vive cheia, com mil tarefas em aberto ao mesmo tempo.',
+      'Você se sente cansado(a) sem ter feito nada — o peso mental já esgota.',
+      'Quando alguém te dá UMA tarefa clara, você faz numa boa. O problema é o monte.'
+    ],
+    mecanismo:[
+      'O seu cérebro tem um limite de coisas que consegue segurar ao mesmo tempo. Quando você joga tudo nele de uma vez — trabalho, casa, pendências, preocupações — ele <b>estoura</b>.',
+      'E quando estoura, ele faz a única coisa que sabe: trava. Não por falta de vontade, mas por excesso de carga. É como um computador com abas demais: congela.',
+      'Aí vem a confusão, o cansaço mental, a sensação de afundar. E o pior: quanto mais paralisado, mais coisas se acumulam. Não é preguiça — é sobrecarga.'
+    ],
+    callout:'A sua paralisia não é falta de ação. É o seu cérebro <b>protegendo você do excesso</b> — travando tudo porque não consegue escolher por onde.',
+    mentira:[
+      'Te acham desorganizado, enrolado, “que não dá conta”. Mas repara: quando a lista vira UMA coisa clara, você anda. O problema nunca foi capacidade — foi volume sem ordem.',
+      'A ciência mostra que a <b>sobrecarga cognitiva</b> derruba a tomada de decisão: com tudo competindo pela atenção, o cérebro não consegue priorizar e simplesmente para. Não é você que é fraco. É a carga que tá impossível.',
+      'A saída não é “fazer mais”. É esvaziar a cabeça e reduzir a decisão a UM próximo passo — porque o cérebro só consegue fazer uma coisa de cada vez.'
+    ],
+    ciclo:[
+      'Mil tarefas chegam ao mesmo tempo.',
+      'Sua cabeça enche e você não sabe por onde começar.',
+      'Vem a confusão e o cansaço mental.',
+      'Você trava — não faz nenhuma.',
+      'As tarefas se acumulam.',
+      'O peso aumenta.',
+      'Fica ainda mais impossível escolher — e o ciclo aperta.'
+    ],
+    cicloFecho:'Repara: quanto mais você segura tudo na cabeça, mais o cérebro congela. O problema não é a quantidade de tarefas. É elas estarem todas soltas ao mesmo tempo.',
+    movimentos:[
+      { titulo:'Esvazie a cabeça no papel',
+        texto:'Enquanto tudo tá na sua mente, o cérebro fica ocupado só <b>segurando</b> as tarefas — sem energia pra fazer. Tirar tudo pra fora (o “brain dump”) libera espaço na hora.',
+        pratica:'Pega papel (ou o bloco de notas) e despeja <b>TUDO</b> que tá na cabeça, sem ordem, sem filtro. Só esvaziar. Você sente o peso cair na hora.' },
+      { titulo:'Escolha UMA só (o próximo passo)',
+        texto:'Você não precisa resolver a lista. Precisa escolher a próxima ação, a <b>menor possível</b>. Uma. Só ela existe agora.',
+        pratica:'Da sua lista, circule <b>1 tarefa</b> e quebre na menor ação possível (“abrir a planilha”, não “fazer o relatório”). Faça só essa. O resto não existe agora.' },
+      { titulo:'Feche as abas mentais',
+        texto:'Multitarefa é o que te trava. Enquanto faz a tarefa escolhida, as outras ficam <b>no papel</b> esperando — não na sua cabeça.',
+        pratica:'Enquanto faz a UMA tarefa, sempre que outra pipocar na mente, anota na lista e volta. Você descarrega sem se desviar.' }
+    ],
+    fecho:{
+      titulo:'Um passo por vez, a névoa some',
+      texto:'No momento que você tira tudo da cabeça e escolhe só o próximo passo, o cérebro descongela. O <b>Fim da Procrastinação</b> te dá um sistema pra transformar o caos numa fila clara de próximos passos — pra você sair da paralisia e voltar a andar.',
+      botao:'Quero sair da paralisia'
+    }
+  },
+
+  indeciso: {
+    emoji:'🧭', nome:'Indeciso', acc:'#3b6ef5', soft:'#e6eefe',
+    essencia:'O que te trava não é a tarefa — é a escolha. O medo de decidir errado te mantém pesquisando, comparando e adiando o “bater o martelo”. Você confunde analisar com avançar.',
+    reconhece:[
+      'Você pesquisa, compara, lê mais um artigo… e não decide.',
+      '“E se eu escolher errado?” é o pensamento que te paralisa.',
+      'Você tem 2 ou 3 caminhos bons e não consegue escolher UM.',
+      'Analisar te dá a sensação de progredir — mas você não sai do lugar.',
+      'Depois de decidir, fica remoendo se não era melhor o outro.'
+    ],
+    mecanismo:[
+      'O seu cérebro trata “escolher errado” como uma <b>ameaça</b>. Decidir significa fechar portas — e fechar portas dói. Então ele te mantém no “ainda estou avaliando”, onde nada é perdido e nada é arriscado.',
+      'Pesquisar mais dá uma sensação de segurança e de progresso. Mas é uma armadilha: você troca a ação pela análise, e a análise nunca acaba, porque sempre tem mais uma opção pra considerar.',
+      'No fundo, o problema não é falta de informação — é o medo de assumir a decisão. Não é incapacidade. É o cérebro fugindo do risco de errar.'
+    ],
+    callout:'Você não está sem informação. Está fugindo do <b>risco de decidir</b> — porque “ainda pesquisando” parece seguro, mesmo te deixando parado.',
+    mentira:[
+      'Te chamam de enrolado, de quem “não se decide”. Mas você decide rápido em mil coisas pequenas todo dia. O que te trava são as decisões que parecem grandes demais pra errar.',
+      'A ciência distingue dois tipos: o <b>maximizador</b> (que busca a MELHOR opção) e o <b>satisfazedor</b> (que busca uma opção boa o suficiente). Maximizar deixa mais paralisado e menos feliz — porque a “melhor” opção nunca chega.',
+      'A saída não é “ter mais certeza”. É aceitar que decidir bem o suficiente e seguir vale mais do que decidir perfeito e nunca sair do lugar.'
+    ],
+    ciclo:[
+      'Aparece uma escolha (2 ou 3 caminhos).',
+      'Vem o medo: “e se eu escolher errado?”.',
+      'Você pesquisa e compara mais — e sente que está progredindo.',
+      'Nenhuma opção parece 100% segura.',
+      'Você adia o “bater o martelo”.',
+      'O tempo passa sem a decisão.',
+      'A insegurança aumenta, e escolher fica ainda mais pesado.'
+    ],
+    cicloFecho:'Repara: quanto mais você analisa, mais difícil fica decidir — porque toda opção nova traz mais dúvida. O problema não é falta de dados. É o medo de assumir a escolha.',
+    movimentos:[
+      { titulo:'Defina “bom o suficiente” antes de escolher',
+        texto:'Pare de buscar a opção perfeita. Antes de avaliar, decida os 2 ou 3 critérios que <b>realmente</b> importam. A primeira opção que atende → é a escolhida.',
+        pratica:'Pra sua decisão travada, escreva: <b>“Uma boa escolha só precisa ter ___ e ___.”</b> A primeira que bater nisso, você fecha. Sem procurar a próxima.' },
+      { titulo:'Coloque um prazo pra decisão',
+        texto:'Decisão sem prazo é decisão eterna. Dê a si mesmo um <b>deadline curto</b> pra bater o martelo — e cumpra.',
+        pratica:'Marque agora: <b>“Até [dia/hora] eu decido, com o que eu souber até lá.”</b> Depois disso, não pesquisa mais. Decide.' },
+      { titulo:'Torne a decisão reversível',
+        texto:'Quase nenhuma escolha é definitiva. Pergunte: “se der errado, dá pra corrigir depois?” Quase sempre dá — e isso tira o <b>pânico</b> de decidir.',
+        pratica:'Antes de travar, responda: <b>“Se eu escolher errado, o que eu faço pra corrigir?”</b> Ver que dá pra ajustar depois libera você pra decidir agora.' }
+    ],
+    fecho:{
+      titulo:'Decidir e seguir vale mais que decidir perfeito',
+      texto:'No momento que você aceita “bom o suficiente” e coloca um prazo, o martelo bate — e você volta a andar. O <b>Fim da Procrastinação</b> te dá um método pra parar de girar na análise e transformar decisão em ação, sem o peso de acertar sempre.',
+      botao:'Quero parar de travar nas escolhas'
+    }
+  }
+};
+
+function esc(s){return String(s==null?'':s);}
+function render(){
+  const mp=location.pathname.match(/\/diagnostico\/([^/?#]+)/); // URL limpa /diagnostico/PERFIL
+  const p=((new URLSearchParams(location.search).get('p'))||(mp&&decodeURIComponent(mp[1]))||'perfeccionista').toLowerCase();
+  const d=CONTENT[p];
+  const app=document.getElementById('app');
+  if(!d){
+    app.innerHTML='<div class="soon">✍️ O conteúdo completo do seu perfil está sendo finalizado. Volte em breve!</div>';
+    return;
+  }
+  document.documentElement.style.setProperty('--acc',d.acc);
+  document.documentElement.style.setProperty('--soft',d.soft);
+  document.title='Perfil '+d.nome+' · Diagnóstico Procrastinador';
+  app.innerHTML=`
+    <div class="hero">
+      <div class="emoji">${d.emoji}</div>
+      <div class="kick">Diagnóstico do seu perfil</div>
+      <h1><span class="lt">Você é o</span>${d.nome}</h1>
+      <p class="ess">${d.essencia}</p>
+    </div>
+    <div class="paper">
+      <h2>Se você chegou até aqui, <span class="n">provavelmente…</span></h2>
+      <ul class="recon">${d.reconhece.map(r=>`<li>${r}</li>`).join('')}</ul>
+
+      <h2>O que está <span class="n">realmente</span> acontecendo</h2>
+      ${d.mecanismo.map(x=>`<p class="lead-p">${x}</p>`).join('')}
+      <div class="callout">${d.callout}</div>
+
+      <h2>A mentira que te <span class="n">contaram</span></h2>
+      ${d.mentira.map(x=>`<p>${x}</p>`).join('')}
+
+      <h2>O ciclo que te mantém <span class="n">preso</span></h2>
+      <ol class="cycle">${d.ciclo.map(x=>`<li>${x}</li>`).join('')}</ol>
+      <p style="margin-top:14px;color:var(--muted)">${d.cicloFecho}</p>
+
+      <h2>3 movimentos pra começar a <span class="n">virar o jogo</span></h2>
+      ${d.movimentos.map((m,i)=>`<div class="tech"><div class="tn">${i+1}</div>
+        <h3>${m.titulo}</h3><p>${m.texto}</p>
+        <div class="pratica"><span class="pl">Na prática</span>${m.pratica}</div></div>`).join('')}
+
+      <div class="cta">
+        <div class="oferta">🎁 Oferta especial pra quem fez o teste</div>
+        <h3>${d.fecho.titulo}</h3>
+        <p>${d.fecho.texto}</p>
+        <a class="btn" href="https://pay.kiwify.com.br/xBMVt0h?utm_source=diagnostico&utm_medium=whatsapp&utm_content=${p}" target="_blank" rel="noopener">${d.fecho.botao}</a>
+        <div class="cta-sub">Fim da Procrastinação · acesso imediato</div>
+      </div>
+
+      <div class="sign">
+        <span class="k">K</span>
+        <span class="who">Kenji Hirota<span>Psicólogo · CRP 18/09596</span></span>
+      </div>
+    </div>`;
+}
+render();
+
+// barra de progresso de leitura
+const prog=document.getElementById('prog');
+addEventListener('scroll',()=>{
+  const h=document.documentElement.scrollHeight-innerHeight;
+  prog.style.width=(h>0?(scrollY/h*100):0)+'%';
+},{passive:true});
+</script>
+</body>
+</html>

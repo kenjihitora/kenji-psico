@@ -7,7 +7,7 @@ module.exports = async (req, res) => {
     await ensureTable();
     const rows = await sql`
       SELECT id, created_at, name, whatsapp, gender, age, profile, scores, answers, utm, status,
-             comercial, sale_value::float AS sale_value
+             comercial, sale_value::float AS sale_value, purchases
       FROM leads ORDER BY created_at DESC LIMIT 2000`;
     res.status(200).json({ leads: rows });
   } catch (e) {

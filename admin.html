@@ -71,6 +71,12 @@
   .minibar > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2))}
   .pill{display:inline-block;font-size:11px;font-weight:750;padding:4px 10px;border-radius:999px;background:#f0ecff;color:var(--accent)}
   .compill{display:inline-block;font-size:11px;font-weight:750;padding:4px 10px;border-radius:999px;background:#e2f8ef;color:#0e9a72}
+  .buypill{display:inline-block;font-size:11px;font-weight:750;padding:4px 10px;border-radius:999px;background:#fff3d9;color:#a06a00}
+  /* 🛒 compras do lead (modal) */
+  .purrow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
+  .purrow .purdt{font-size:11.5px;color:var(--muted);font-weight:500}
+  .purrow.purtot{border-bottom:0;font-weight:800;color:#a06a00}
+  .purx{border:0;background:#fdecea;color:#d63b4a;width:26px;height:26px;border-radius:8px;cursor:pointer;font-size:12px;flex:0 0 auto}
   /* CRM toolbar */
   .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
   .toolbar .input,.toolbar select{padding:10px 12px;font-size:14px;border-radius:11px;border:1.6px solid var(--line);background:#fff}
@@ -157,6 +163,12 @@
 const app=document.getElementById('app');
 let TAB='analytics', LEADS=[], ANALYTICS=null, CAMP=null, crmView='cards', anMetaOnly=false, dFrom, dTo;
 const PERFIS=['Perfeccionista','Evitativo','Impulsivo','Sobrecarregado','Indeciso'];
+// produtos da esteira (atalhos do 🛒 Compras no modal do lead) — edita aqui se mudar nome/preço
+const PRODUCTS=[
+  {name:'Fundamentos da Procrastinação',value:49.90},
+  {name:'Metas em Movimento',value:19.90},
+  {name:'Pilares da Produtividade',value:297},
+];
 const EMO={Perfeccionista:'🎯',Evitativo:'🚪',Impulsivo:'⚡',Sobrecarregado:'🌀',Indeciso:'🧭'};
 // rótulos das etapas do funil (mesma ordem do FLOW do quiz)
 const STEPS=['Abriu o quiz','Nome','Gênero','Idade','Pergunta 1','Pergunta 2','Pergunta 3','“Não é preguiça”','Pergunta 4','Pergunta 5','Pergunta 6','Pergunta 7','Método (ciência)','WhatsApp 📲','Calculando','Perfil revelado','Diagnóstico','VSL'];
@@ -432,8 +444,9 @@ function campaignsBody(){
 }
 
 /* ---------- CRM ---------- */
-function crmCounts(){const c={total:0,novo:0,contatado:0,vendido:0,perdido:0,teste:0,com:0,comValor:0};
-  LEADS.forEach(l=>{c[l.status]=(c[l.status]||0)+1;if(l.status!=='teste'){c.total++;if(l.comercial){c.com++;c.comValor+=Number(l.sale_value)||0;}}});return c;}
+function purTotal(l){return (l.purchases||[]).reduce((a,p)=>a+(Number(p.value)||0),0);}
+function crmCounts(){const c={total:0,novo:0,contatado:0,vendido:0,perdido:0,teste:0,com:0,comValor:0,fat:0};
+  LEADS.forEach(l=>{c[l.status]=(c[l.status]||0)+1;if(l.status!=='teste'){c.total++;c.fat+=purTotal(l);if(l.comercial){c.com++;c.comValor+=Number(l.sale_value)||0;}}});return c;}
 function renderCRM(){
   const c=crmCounts();
   document.getElementById('content').innerHTML=`
@@ -443,6 +456,7 @@ function renderCRM(){
       <div class="stat"><div class="n st-contatado" id="c-cont">${c.contatado||0}</div><div class="l">Contatados</div></div>
       <div class="stat"><div class="n st-vendido" id="c-vend">${c.vendido||0}</div><div class="l">Vendidos</div></div>
       <div class="stat"><div class="n st-vendido" id="c-com">${c.com}</div><div class="l">💼 Comercial</div><div class="sub" id="c-comsub">${cMoney(c.comValor,'BRL')} fechados</div></div>
+      <div class="stat"><div class="n" id="c-fat" style="color:#a06a00;font-size:22px;line-height:1.3">${cMoney(c.fat,'BRL')}</div><div class="l">💰 Total em compras</div><div class="sub">o que os leads já deixaram</div></div>
     </div>
     <div class="toolbar">
       <input class="input" id="q" placeholder="🔎 Buscar por nome, WhatsApp, perfil, UTM..." oninput="renderList()" />
@@ -488,7 +502,7 @@ function renderList(){
     el.innerHTML=`<div class="tablecard"><table><thead><tr><th>Data</th><th>Nome</th><th>WhatsApp</th><th>Perfil</th><th class="hide-sm">Anúncio</th><th>Status</th><th></th></tr></thead><tbody>${
       rows.map(l=>{const o=origin(l),wa=waDigits(l.whatsapp);
         return `<tr><td style="color:var(--muted);white-space:nowrap">${fmtDate(l.created_at)}</td>
-        <td style="font-weight:650">${esc(l.name)||'—'}${l.comercial?` <span class="compill" title="Venda do comercial">💼 ${l.sale_value!=null?cMoney(l.sale_value,'BRL'):''}</span>`:''}</td>
+        <td style="font-weight:650">${esc(l.name)||'—'}${l.comercial?` <span class="compill" title="Venda do comercial">💼 ${l.sale_value!=null?cMoney(l.sale_value,'BRL'):''}</span>`:''}${purTotal(l)>0?` <span class="buypill" title="Total em compras atribuídas">💰 ${cMoney(purTotal(l),'BRL')}</span>`:''}</td>
         <td><a class="wa" href="https://wa.me/${wa}" target="_blank" rel="noopener">💬 ${esc(l.whatsapp)}</a></td>
         <td>${l.profile?`<span class="pill">${EMO[l.profile]||''} ${esc(l.profile)}</span>`:'—'}</td>
         <td class="hide-sm" style="color:var(--muted);font-size:12.5px">${o?esc(o.ad):'—'}</td>
@@ -502,6 +516,7 @@ function kcard(l){const o=origin(l),wa=waDigits(l.whatsapp);
     <div class="dt">${fmtDate(l.created_at)}</div>
     ${l.profile?`<span class="pill">${EMO[l.profile]||''} ${esc(l.profile)}</span>`:''}
     ${l.comercial?`<span class="compill" title="Venda do comercial">💼 ${l.sale_value!=null?cMoney(l.sale_value,'BRL'):'Comercial'}</span>`:''}
+    ${purTotal(l)>0?`<span class="buypill" title="Total em compras atribuídas">💰 ${cMoney(purTotal(l),'BRL')}</span>`:''}
     <a class="wa" href="https://wa.me/${wa}" target="_blank" rel="noopener">💬 ${esc(l.whatsapp)}</a>
     <div class="korigin">📣 ${o?esc(o.ad):'direto'}</div>
     <button class="link" style="text-align:left;padding:0" onclick='openModal(${l.id})'>ver detalhes →</button>
@@ -517,7 +532,7 @@ async function dropCard(e,status){ e.preventDefault();
 }
 function refreshCounts(){const c=crmCounts();const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
   set('c-total',c.total);set('c-novo',c.novo||0);set('c-cont',c.contatado||0);set('c-vend',c.vendido||0);
-  set('c-com',c.com);set('c-comsub',cMoney(c.comValor,'BRL')+' fechados');}
+  set('c-com',c.com);set('c-comsub',cMoney(c.comValor,'BRL')+' fechados');set('c-fat',cMoney(c.fat,'BRL'));}
 async function setStatus(id,status,el){
   if(el)el.className='status st-'+status;
   const l=LEADS.find(x=>x.id===id); if(l)l.status=status;
@@ -549,6 +564,8 @@ function openModal(id){
         <span id="com-msg" style="margin-left:8px;font-size:13px;font-weight:700;color:var(--ok)"></span>
       </div>
     </div></div>
+    <h3 style="margin:18px 0 4px;font-size:13px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted)">🛒 Compras — o que esse lead já deixou</h3>
+    <div id="purwrap">${purBlock(l)}</div>
     <h3 style="margin:18px 0 4px;font-size:13px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted)">Respostas</h3>${ans||'<div class="sub">—</div>'}
     <h3 style="margin:18px 0 4px;font-size:13px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted)">Origem (UTM)</h3>${utm}
     <div style="margin-top:20px;padding-top:14px;border-top:1px solid var(--line);text-align:right"><button class="link" style="color:#d63b4a" onclick="delLead(${l.id})">🗑️ Excluir este lead</button></div>`;
@@ -571,6 +588,49 @@ async function comToggle(id,on){
   const r=await fetch('/api/update',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,comercial:false})});
   if(!r.ok)alert('Não consegui salvar. Recarregue a página.');
 }
+/* 🛒 Compras do lead (LTV) */
+function purBlock(l){
+  const ps=l.purchases||[];
+  const rows=ps.map((p,i)=>`<div class="purrow"><div><b>${esc(p.name)}</b><span class="purdt">${p.at?' · '+fmtDate(p.at):''}</span></div>
+    <div style="display:flex;align-items:center;gap:10px"><b>${cMoney(p.value,'BRL')}</b><button class="purx" onclick="purDel(${l.id},${i})" title="Remover">✕</button></div></div>`).join('');
+  return `${rows||'<div style="color:var(--muted);font-size:13px;padding:4px 0">Nenhuma compra atribuída ainda.</div>'}
+    ${ps.length?`<div class="purrow purtot"><div>Total deixado</div><div>${cMoney(purTotal(l),'BRL')}</div></div>`:''}
+    <div class="presets" style="flex-wrap:wrap;margin-top:10px">
+      ${PRODUCTS.map((p,i)=>`<button class="preset" onclick="purAdd(${l.id},${i})">+ ${esc(p.name)} · ${cMoney(p.value,'BRL')}</button>`).join('')}
+      <button class="preset" onclick="purToggleCustom()">+ Personalizado…</button>
+    </div>
+    <div id="purcustom" style="display:none;margin-top:10px">
+      <input class="input" id="pur-name" placeholder="Nome do produto" style="margin-bottom:8px">
+      <input class="input" id="pur-val" inputmode="decimal" placeholder="Valor — ex.: 197 ou 49,90" style="margin-bottom:8px">
+      <button class="btn sm" onclick="purAddCustom(${l.id})">Adicionar compra</button>
+    </div>`;
+}
+function purToggleCustom(){const e=document.getElementById('purcustom');if(!e)return;
+  const on=e.style.display!=='none';e.style.display=on?'none':'block';
+  if(!on){const n=document.getElementById('pur-name');if(n)n.focus();}}
+function refreshPur(l){const w=document.getElementById('purwrap');if(w)w.innerHTML=purBlock(l);renderList();refreshCounts();}
+async function purSave(l){
+  const r=await fetch('/api/update',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:l.id,purchases:l.purchases})});
+  if(!r.ok)alert('Não consegui salvar a compra. Recarregue a página.');
+}
+function purAdd(id,idx){
+  const l=LEADS.find(x=>x.id===id),p=PRODUCTS[idx];if(!l||!p)return;
+  l.purchases=(l.purchases||[]).concat([{name:p.name,value:p.value,at:new Date().toISOString()}]);
+  refreshPur(l);purSave(l);
+}
+function purAddCustom(id){
+  const l=LEADS.find(x=>x.id===id);if(!l)return;
+  const name=((document.getElementById('pur-name')||{}).value||'').trim();
+  const v=parseBRL((document.getElementById('pur-val')||{}).value);
+  if(!name||v==null){alert('Preenche o nome do produto e um valor válido. Ex.: 197 ou 49,90');return;}
+  l.purchases=(l.purchases||[]).concat([{name,value:v,at:new Date().toISOString()}]);
+  refreshPur(l);purSave(l);
+}
+function purDel(id,i){
+  const l=LEADS.find(x=>x.id===id);if(!l||!(l.purchases||[])[i])return;
+  l.purchases=l.purchases.slice(0,i).concat(l.purchases.slice(i+1));
+  refreshPur(l);purSave(l);
+}
 async function comSave(id){
   const l=LEADS.find(x=>x.id===id);if(!l)return;
   const raw=(document.getElementById('com-v')||{}).value||'';
@@ -588,9 +648,10 @@ async function delLead(id){
   if(r.ok){LEADS=LEADS.filter(x=>x.id!==id);closeModal();renderContent();}else alert('Não consegui excluir.');
 }
 function doExport(){
-  const rows=filtered();const cols=['data','nome','whatsapp','perfil','genero','idade','status','comercial','valor_comercial','utm_source','utm_campaign','utm_content'];
+  const rows=filtered();const cols=['data','nome','whatsapp','perfil','genero','idade','status','comercial','valor_comercial','compras','total_compras','utm_source','utm_campaign','utm_content'];
   const csv=[cols.join(',')].concat(rows.map(l=>{const u=l.utm||{};
-    return [fmtDate(l.created_at),l.name,l.whatsapp,l.profile,l.gender,l.age,l.status,l.comercial?'sim':'',l.sale_value!=null?String(l.sale_value).replace('.',','):'',u.utm_source||'',u.utm_campaign||'',u.utm_content||'']
+    const compras=(l.purchases||[]).map(p=>`${p.name} (${String(p.value).replace('.',',')})`).join(' | ');
+    return [fmtDate(l.created_at),l.name,l.whatsapp,l.profile,l.gender,l.age,l.status,l.comercial?'sim':'',l.sale_value!=null?String(l.sale_value).replace('.',','):'',compras,purTotal(l)?String(purTotal(l).toFixed(2)).replace('.',','):'',u.utm_source||'',u.utm_campaign||'',u.utm_content||'']
       .map(v=>`"${String(v==null?'':v).replace(/"/g,'""')}"`).join(',');})).join('\n');
   const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'});const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);a.download='leads-kenji.csv';a.click();

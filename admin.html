@@ -70,6 +70,7 @@
   .minibar{height:8px;background:var(--line);border-radius:5px;overflow:hidden;min-width:60px}
   .minibar > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2))}
   .pill{display:inline-block;font-size:11px;font-weight:750;padding:4px 10px;border-radius:999px;background:#f0ecff;color:var(--accent)}
+  .compill{display:inline-block;font-size:11px;font-weight:750;padding:4px 10px;border-radius:999px;background:#e2f8ef;color:#0e9a72}
   /* CRM toolbar */
   .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
   .toolbar .input,.toolbar select{padding:10px 12px;font-size:14px;border-radius:11px;border:1.6px solid var(--line);background:#fff}
@@ -254,7 +255,7 @@ async function loadAnalytics(){
   const body=document.getElementById('an-body'); if(body) body.innerHTML='<div class="loading">Carregando métricas…</div>';
   const r=await fetch(`/api/analytics?from=${dFrom}&to=${dTo}${anMetaOnly?'&source=meta':''}`);
   if(r.status===401){ renderLogin(); return; }
-  ANALYTICS=r.ok?await r.json():{funnel:[],sessions:0,leads:0,byAd:[],byProfile:[]};
+  ANALYTICS=r.ok?await r.json():{funnel:[],sessions:0,leads:0,byAd:[],byProfile:[],comercial:{vendas:0,valor:0},comercialByAd:[]};
   const b=document.getElementById('an-body'); if(b) b.innerHTML=analyticsBody();
 }
 function analyticsBody(){
@@ -280,12 +281,30 @@ function analyticsBody(){
   const profs=(A.byProfile||[]).filter(p=>p.profile&&p.profile!=='—');
   const maxP=Math.max(1,...profs.map(p=>p.n));
   const profHTML=profs.length?profs.map(p=>`<div class="fstep"><div class="fl"><span>${EMO[p.profile]||''} ${esc(p.profile)}</span><span class="c">${p.n}</span></div><div class="ftrack" style="height:16px"><i style="width:${Math.round(p.n/maxP*100)}%"></i></div></div>`).join(''):'<div class="empty">Sem diagnósticos no período.</div>';
+  // 💼 Comercial — vendas fechadas na mão (tag no CRM)
+  const com=A.comercial||{vendas:0,valor:0};
+  const cAds=A.comercialByAd||[];
+  const maxCV=Math.max(1,...cAds.map(a=>a.valor||0));
+  const comTable=cAds.length?`<table><thead><tr><th>Origem</th><th class="hide-sm">Campanha</th><th>Anúncio</th><th style="width:90px">Vendas</th><th style="width:190px">Valor fechado</th></tr></thead><tbody>${
+    cAds.map(a=>`<tr><td>${esc(a.source)}</td><td class="hide-sm">${esc(a.campaign)}</td><td>${esc(a.ad)}</td><td><b>${a.vendas}</b></td>
+      <td><div style="display:flex;align-items:center;gap:8px"><b style="white-space:nowrap">${cMoney(a.valor,'BRL')}</b><div class="minibar" style="flex:1"><i style="width:${Math.round((a.valor||0)/maxCV*100)}%"></i></div></div></td></tr>`).join('')
+  }</tbody></table>`:'<div class="empty">Nenhuma venda do comercial nesse período. Pra atribuir: CRM → abre o lead → liga 💼 Venda do comercial.</div>';
+  const comHTML=`<div class="panel"><h3>💼 Comercial — vendas fechadas pelo time</h3>
+    <div class="stats" style="margin-bottom:16px">
+      <div class="stat"><div class="n st-vendido">${com.vendas||0}</div><div class="l">Vendas do comercial</div></div>
+      <div class="stat"><div class="n st-vendido" style="font-size:22px;line-height:1.3">${cMoney(com.valor||0,'BRL')}</div><div class="l">Valor total fechado</div></div>
+      <div class="stat"><div class="n" style="color:var(--accent);font-size:22px;line-height:1.3">${com.vendas?cMoney((com.valor||0)/com.vendas,'BRL'):'—'}</div><div class="l">Ticket médio</div></div>
+    </div>
+    ${comTable}
+    <p class="fineprint">Atribuição pela <b>UTM do lead</b> (o anúncio que gerou o lead) e pela <b>data em que o lead entrou</b>. O período e o switch "só anúncios do Meta" valem aqui também. Pra marcar uma venda: CRM → abre o lead → 💼 Venda do comercial + valor.</p>
+  </div>`;
   return `
     <div class="stats">
       <div class="stat"><div class="n">${A.sessions}</div><div class="l">Iniciaram o quiz</div></div>
       <div class="stat"><div class="n st-vendido">${A.leads}</div><div class="l">Leads (WhatsApp)</div></div>
       <div class="stat"><div class="n" style="color:var(--accent)">${conv}%</div><div class="l">Conversão</div><div class="sub">de quem abriu virou lead</div></div>
     </div>
+    ${comHTML}
     <div class="panel"><h3>📉 Funil — % de passagem por etapa</h3>${funnelHTML}</div>
     <div class="panel"><h3>📣 De qual anúncio vieram os leads</h3>${adsHTML}</div>
     <div class="panel"><h3>🧩 Leads por perfil</h3>${profHTML}</div>`;
@@ -413,15 +432,17 @@ function campaignsBody(){
 }
 
 /* ---------- CRM ---------- */
-function crmCounts(){const c={total:0,novo:0,contatado:0,vendido:0,perdido:0,teste:0};LEADS.forEach(l=>{c[l.status]=(c[l.status]||0)+1;if(l.status!=='teste')c.total++;});return c;}
+function crmCounts(){const c={total:0,novo:0,contatado:0,vendido:0,perdido:0,teste:0,com:0,comValor:0};
+  LEADS.forEach(l=>{c[l.status]=(c[l.status]||0)+1;if(l.status!=='teste'){c.total++;if(l.comercial){c.com++;c.comValor+=Number(l.sale_value)||0;}}});return c;}
 function renderCRM(){
   const c=crmCounts();
   document.getElementById('content').innerHTML=`
     <div class="stats">
-      <div class="stat"><div class="n">${c.total}</div><div class="l">Total de leads</div></div>
-      <div class="stat"><div class="n st-novo">${c.novo||0}</div><div class="l">Novos</div></div>
-      <div class="stat"><div class="n st-contatado">${c.contatado||0}</div><div class="l">Contatados</div></div>
-      <div class="stat"><div class="n st-vendido">${c.vendido||0}</div><div class="l">Vendidos</div></div>
+      <div class="stat"><div class="n" id="c-total">${c.total}</div><div class="l">Total de leads</div></div>
+      <div class="stat"><div class="n st-novo" id="c-novo">${c.novo||0}</div><div class="l">Novos</div></div>
+      <div class="stat"><div class="n st-contatado" id="c-cont">${c.contatado||0}</div><div class="l">Contatados</div></div>
+      <div class="stat"><div class="n st-vendido" id="c-vend">${c.vendido||0}</div><div class="l">Vendidos</div></div>
+      <div class="stat"><div class="n st-vendido" id="c-com">${c.com}</div><div class="l">💼 Comercial</div><div class="sub" id="c-comsub">${cMoney(c.comValor,'BRL')} fechados</div></div>
     </div>
     <div class="toolbar">
       <input class="input" id="q" placeholder="🔎 Buscar por nome, WhatsApp, perfil, UTM..." oninput="renderList()" />
@@ -467,7 +488,7 @@ function renderList(){
     el.innerHTML=`<div class="tablecard"><table><thead><tr><th>Data</th><th>Nome</th><th>WhatsApp</th><th>Perfil</th><th class="hide-sm">Anúncio</th><th>Status</th><th></th></tr></thead><tbody>${
       rows.map(l=>{const o=origin(l),wa=waDigits(l.whatsapp);
         return `<tr><td style="color:var(--muted);white-space:nowrap">${fmtDate(l.created_at)}</td>
-        <td style="font-weight:650">${esc(l.name)||'—'}</td>
+        <td style="font-weight:650">${esc(l.name)||'—'}${l.comercial?` <span class="compill" title="Venda do comercial">💼 ${l.sale_value!=null?cMoney(l.sale_value,'BRL'):''}</span>`:''}</td>
         <td><a class="wa" href="https://wa.me/${wa}" target="_blank" rel="noopener">💬 ${esc(l.whatsapp)}</a></td>
         <td>${l.profile?`<span class="pill">${EMO[l.profile]||''} ${esc(l.profile)}</span>`:'—'}</td>
         <td class="hide-sm" style="color:var(--muted);font-size:12.5px">${o?esc(o.ad):'—'}</td>
@@ -480,6 +501,7 @@ function kcard(l){const o=origin(l),wa=waDigits(l.whatsapp);
     <div class="nm">${esc(l.name)||'—'}</div>
     <div class="dt">${fmtDate(l.created_at)}</div>
     ${l.profile?`<span class="pill">${EMO[l.profile]||''} ${esc(l.profile)}</span>`:''}
+    ${l.comercial?`<span class="compill" title="Venda do comercial">💼 ${l.sale_value!=null?cMoney(l.sale_value,'BRL'):'Comercial'}</span>`:''}
     <a class="wa" href="https://wa.me/${wa}" target="_blank" rel="noopener">💬 ${esc(l.whatsapp)}</a>
     <div class="korigin">📣 ${o?esc(o.ad):'direto'}</div>
     <button class="link" style="text-align:left;padding:0" onclick='openModal(${l.id})'>ver detalhes →</button>
@@ -493,8 +515,9 @@ async function dropCard(e,status){ e.preventDefault();
   const r=await fetch('/api/update',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,status})});
   if(!r.ok) alert('Não consegui salvar. Recarregue a página.');
 }
-function refreshCounts(){const c=crmCounts();const cells=document.querySelectorAll('#content .stats .stat .n');
-  if(cells.length>=4){cells[0].textContent=c.total;cells[1].textContent=c.novo||0;cells[2].textContent=c.contatado||0;cells[3].textContent=c.vendido||0;}}
+function refreshCounts(){const c=crmCounts();const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  set('c-total',c.total);set('c-novo',c.novo||0);set('c-cont',c.contatado||0);set('c-vend',c.vendido||0);
+  set('c-com',c.com);set('c-comsub',cMoney(c.comValor,'BRL')+' fechados');}
 async function setStatus(id,status,el){
   if(el)el.className='status st-'+status;
   const l=LEADS.find(x=>x.id===id); if(l)l.status=status;
@@ -513,21 +536,61 @@ function openModal(id){
     <div class="kv"><div class="k">WhatsApp</div><div><a class="wa" href="https://wa.me/${waDigits(l.whatsapp)}" target="_blank" rel="noopener">${esc(l.whatsapp)}</a></div></div>
     <div class="kv"><div class="k">Gênero / Idade</div><div>${esc(l.gender)||'—'} · ${esc(l.age)||'—'}</div></div>
     <div class="kv"><div class="k">Status</div><div>${statusSel(l)}</div></div>
+    <div class="kv" style="align-items:flex-start"><div class="k">💼 Comercial</div><div style="flex:1">
+      <label class="mswitch"><input type="checkbox" ${l.comercial?'checked':''} onchange="comToggle(${l.id},this.checked)"><span class="track"></span><span class="lbl">Venda fechada pelo comercial</span></label>
+      <div id="comval" style="display:${l.comercial?'block':'none'};margin-top:10px">
+        <input class="input" id="com-v" inputmode="decimal" placeholder="Valor fechado — ex.: 3.000" value="${l.sale_value!=null?Number(l.sale_value).toLocaleString('pt-BR'):''}" style="margin-bottom:8px">
+        <div class="presets" style="margin-bottom:8px;flex-wrap:wrap">
+          <button class="preset" onclick="comFill('49,90')">R$ 49,90</button>
+          <button class="preset" onclick="comFill('397')">R$ 397</button>
+          <button class="preset" onclick="comFill('3.000')">R$ 3.000</button>
+        </div>
+        <button class="btn sm" onclick="comSave(${l.id})">Salvar valor</button>
+        <span id="com-msg" style="margin-left:8px;font-size:13px;font-weight:700;color:var(--ok)"></span>
+      </div>
+    </div></div>
     <h3 style="margin:18px 0 4px;font-size:13px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted)">Respostas</h3>${ans||'<div class="sub">—</div>'}
     <h3 style="margin:18px 0 4px;font-size:13px;text-transform:uppercase;letter-spacing:.4px;color:var(--muted)">Origem (UTM)</h3>${utm}
     <div style="margin-top:20px;padding-top:14px;border-top:1px solid var(--line);text-align:right"><button class="link" style="color:#d63b4a" onclick="delLead(${l.id})">🗑️ Excluir este lead</button></div>`;
   document.getElementById('modalbg').classList.add('on');
 }
 function closeModal(){document.getElementById('modalbg').classList.remove('on');}
+/* 💼 Comercial: marca a venda fechada pelo time + valor */
+function comFill(v){const e=document.getElementById('com-v');if(e){e.value=v;e.focus();}}
+function parseBRL(s){s=String(s||'').replace(/[^\d.,]/g,'');if(!s)return null;
+  if(s.includes(','))s=s.replace(/\./g,'').replace(',','.');           // 3.000,50 → 3000.50
+  else if((s.match(/\./g)||[]).length>1||/\.\d{3}$/.test(s))s=s.replace(/\./g,''); // 3.000 → 3000
+  const v=parseFloat(s);return isFinite(v)&&v>=0?v:null;}
+async function comToggle(id,on){
+  const l=LEADS.find(x=>x.id===id);if(!l)return;
+  const box=document.getElementById('comval');
+  if(on){ if(box){box.style.display='block';const e=document.getElementById('com-v');if(e)e.focus();} return; } // liga de fato no "Salvar valor"
+  l.comercial=false;l.sale_value=null;ANALYTICS=null;
+  if(box)box.style.display='none';
+  renderList();refreshCounts();
+  const r=await fetch('/api/update',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,comercial:false})});
+  if(!r.ok)alert('Não consegui salvar. Recarregue a página.');
+}
+async function comSave(id){
+  const l=LEADS.find(x=>x.id===id);if(!l)return;
+  const raw=(document.getElementById('com-v')||{}).value||'';
+  const v=parseBRL(raw);
+  if(raw.trim()&&v==null){alert('Valor inválido. Ex.: 3.000 ou 49,90');return;}
+  l.comercial=true;l.sale_value=v;ANALYTICS=null;
+  renderList();refreshCounts();
+  const msg=document.getElementById('com-msg');if(msg)msg.textContent='Salvo ✓';
+  const r=await fetch('/api/update',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,comercial:true,sale_value:v})});
+  if(!r.ok){if(msg)msg.textContent='';alert('Não consegui salvar. Recarregue a página.');}
+}
 async function delLead(id){
   if(!confirm('Excluir este lead? Essa ação não tem volta.'))return;
   const r=await fetch('/api/delete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})});
   if(r.ok){LEADS=LEADS.filter(x=>x.id!==id);closeModal();renderContent();}else alert('Não consegui excluir.');
 }
 function doExport(){
-  const rows=filtered();const cols=['data','nome','whatsapp','perfil','genero','idade','status','utm_source','utm_campaign','utm_content'];
+  const rows=filtered();const cols=['data','nome','whatsapp','perfil','genero','idade','status','comercial','valor_comercial','utm_source','utm_campaign','utm_content'];
   const csv=[cols.join(',')].concat(rows.map(l=>{const u=l.utm||{};
-    return [fmtDate(l.created_at),l.name,l.whatsapp,l.profile,l.gender,l.age,l.status,u.utm_source||'',u.utm_campaign||'',u.utm_content||'']
+    return [fmtDate(l.created_at),l.name,l.whatsapp,l.profile,l.gender,l.age,l.status,l.comercial?'sim':'',l.sale_value!=null?String(l.sale_value).replace('.',','):'',u.utm_source||'',u.utm_campaign||'',u.utm_content||'']
       .map(v=>`"${String(v==null?'':v).replace(/"/g,'""')}"`).join(',');})).join('\n');
   const blob=new Blob(['﻿'+csv],{type:'text/csv;charset=utf-8'});const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);a.download='leads-kenji.csv';a.click();

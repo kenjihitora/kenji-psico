@@ -48,7 +48,23 @@ module.exports = async (req, res) => {
         AND (${inc} OR (nullif(utm->>'utm_campaign','') IS NOT NULL AND lower(coalesce(utm->>'utm_source','')) IN ('facebook','fb','instagram','ig','meta','messenger','msg','an')))
       GROUP BY 1 ORDER BY n DESC`;
 
-    res.status(200).json({ funnel, sessions: sessions[0].n, leads: leads[0].n, byAd, byProfile });
+    // 💼 vendas do comercial (tag manual no CRM): total + por anúncio de origem do lead
+    const comercial = await sql`
+      SELECT count(*)::int AS vendas, coalesce(sum(sale_value),0)::float AS valor
+      FROM leads WHERE created_at >= ${fromISO} AND created_at < ${toISO} AND status <> 'teste' AND comercial
+        AND (${inc} OR (nullif(utm->>'utm_campaign','') IS NOT NULL AND lower(coalesce(utm->>'utm_source','')) IN ('facebook','fb','instagram','ig','meta','messenger','msg','an')))`;
+
+    const comercialByAd = await sql`
+      SELECT coalesce(nullif(utm->>'utm_source',''),'(direto)') AS source,
+             coalesce(nullif(utm->>'utm_campaign',''),'—') AS campaign,
+             coalesce(nullif(utm->>'utm_content',''), nullif(utm->>'utm_term',''), '—') AS ad,
+             count(*)::int AS vendas, coalesce(sum(sale_value),0)::float AS valor
+      FROM leads
+      WHERE created_at >= ${fromISO} AND created_at < ${toISO} AND status <> 'teste' AND comercial
+        AND (${inc} OR (nullif(utm->>'utm_campaign','') IS NOT NULL AND lower(coalesce(utm->>'utm_source','')) IN ('facebook','fb','instagram','ig','meta','messenger','msg','an')))
+      GROUP BY 1,2,3 ORDER BY valor DESC, vendas DESC LIMIT 100`;
+
+    res.status(200).json({ funnel, sessions: sessions[0].n, leads: leads[0].n, byAd, byProfile, comercial: comercial[0], comercialByAd });
   } catch (e) {
     console.error('analytics error:', e);
     res.status(500).json({ error: 'server' });

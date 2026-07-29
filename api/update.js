@@ -1,7 +1,7 @@
 // POST /api/update — atualiza um lead: status (novo/contatado/vendido/perdido/teste),
 // tag 💼 Comercial (venda fechada pelo comercial + valor) e/ou 🛒 compras atribuídas (LTV). Protegido.
 const { sql, ensureTable, isAuthed, readBody } = require('../lib/util');
-const ALLOWED = ['novo', 'contatado', 'vendido', 'perdido', 'teste'];
+const ALLOWED = ['novo', 'contatado', 'vendido', 'reembolsado', 'perdido', 'teste'];
 
 module.exports = async (req, res) => {
   if (!isAuthed(req)) { res.status(401).json({ error: 'auth' }); return; }

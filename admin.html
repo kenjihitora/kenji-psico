@@ -9,7 +9,7 @@
 <link rel="apple-touch-icon" href="/favicon.png" />
 <style>
   :root{--accent:#6d4bf5;--accent-2:#9068ff;--ink:#1b1a2e;--muted:#6b6a80;--line:#e9e7f2;--bg:#f5f3fb;--card:#fff;
-    --novo:#6d4bf5;--contatado:#e2a400;--vendido:#18b98a;--perdido:#9896ac;--teste:#64748b;--ok:#18b98a;}
+    --novo:#6d4bf5;--contatado:#e2a400;--vendido:#18b98a;--reembolsado:#d0564a;--perdido:#9896ac;--teste:#64748b;--ok:#18b98a;}
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Arial,sans-serif;background:var(--bg);color:var(--ink)}
   a{color:var(--accent)}
@@ -110,7 +110,7 @@
   .wa{font-weight:650;text-decoration:none;color:var(--ink);display:inline-flex;align-items:center;gap:6px}
   .wa:hover{color:#18b98a}
   select.status{border:1.5px solid var(--line);border-radius:9px;padding:6px 8px;font-size:12.5px;font-weight:700;cursor:pointer}
-  .st-novo{color:var(--novo)}.st-contatado{color:var(--contatado)}.st-vendido{color:var(--vendido)}.st-perdido{color:var(--perdido)}.st-teste{color:var(--teste)}
+  .st-novo{color:var(--novo)}.st-contatado{color:var(--contatado)}.st-vendido{color:var(--vendido)}.st-reembolsado{color:var(--reembolsado)}.st-perdido{color:var(--perdido)}.st-teste{color:var(--teste)}
   .tablecard{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
   tr:hover td{background:#fbfaff}
   .link{color:var(--accent);cursor:pointer;font-weight:700;font-size:13px;background:none;border:0}
@@ -511,8 +511,16 @@ function reportView(r){
 
 /* ---------- CRM ---------- */
 function purTotal(l){return (l.purchases||[]).reduce((a,p)=>a+(Number(p.value)||0),0);}
-function crmCounts(){const c={total:0,novo:0,contatado:0,vendido:0,perdido:0,teste:0,com:0,comValor:0,fat:0};
-  LEADS.forEach(l=>{c[l.status]=(c[l.status]||0)+1;if(l.status!=='teste'){c.total++;c.fat+=purTotal(l);if(l.comercial){c.com++;c.comValor+=Number(l.sale_value)||0;}}});return c;}
+// Reembolsado conta como lead (é tráfego real) mas NÃO conta como receita — o dinheiro voltou.
+// O total reembolsado fica visível no card pra nada desaparecer no silêncio.
+function crmCounts(){const c={total:0,novo:0,contatado:0,vendido:0,reembolsado:0,perdido:0,teste:0,com:0,comValor:0,fat:0,reembValor:0};
+  LEADS.forEach(l=>{c[l.status]=(c[l.status]||0)+1;
+    if(l.status==='teste')return;
+    c.total++;
+    if(l.status==='reembolsado'){c.reembValor+=purTotal(l);return;}
+    c.fat+=purTotal(l);
+    if(l.comercial){c.com++;c.comValor+=Number(l.sale_value)||0;}});
+  return c;}
 function renderCRM(){
   const c=crmCounts();
   document.getElementById('content').innerHTML=`
@@ -522,12 +530,12 @@ function renderCRM(){
       <div class="stat"><div class="n st-contatado" id="c-cont">${c.contatado||0}</div><div class="l">Contatados</div></div>
       <div class="stat"><div class="n st-vendido" id="c-vend">${c.vendido||0}</div><div class="l">Vendidos</div></div>
       <div class="stat"><div class="n st-vendido" id="c-com">${c.com}</div><div class="l">💼 Comercial</div><div class="sub" id="c-comsub">${cMoney(c.comValor,'BRL')} fechados</div></div>
-      <div class="stat"><div class="n" id="c-fat" style="color:#a06a00;font-size:22px;line-height:1.3">${cMoney(c.fat,'BRL')}</div><div class="l">💰 Total em compras</div><div class="sub">o que os leads já deixaram</div></div>
+      <div class="stat"><div class="n" id="c-fat" style="color:#a06a00;font-size:22px;line-height:1.3">${cMoney(c.fat,'BRL')}</div><div class="l">💰 Total em compras</div><div class="sub" id="c-fatsub">${c.reembValor>0?`líquido · ${cMoney(c.reembValor,'BRL')} reembolsados fora`:'o que os leads já deixaram'}</div></div>
     </div>
     <div class="toolbar">
       <input class="input" id="q" placeholder="🔎 Buscar por nome, WhatsApp, perfil, UTM..." oninput="renderList()" />
       <select id="fp" onchange="renderList()"><option value="">Todos os perfis</option>${PERFIS.map(p=>`<option value="${p}">${EMO[p]} ${p}</option>`).join('')}</select>
-      <select id="fs" onchange="renderList()"><option value="">Todos os status</option>${['novo','contatado','vendido','perdido','teste'].map(s=>`<option value="${s}">${s}</option>`).join('')}</select>
+      <select id="fs" onchange="renderList()"><option value="">Todos os status</option>${['novo','contatado','vendido','reembolsado','perdido','teste'].map(s=>`<option value="${s}">${s}</option>`).join('')}</select>
       <div class="viewtoggle">
         <button id="v-cards" class="${crmView==='cards'?'on':''}" onclick="setView('cards')">▦ Colunas</button>
         <button id="v-list" class="${crmView==='list'?'on':''}" onclick="setView('list')">☰ Lista</button>
@@ -549,13 +557,13 @@ function filtered(){
 }
 function origin(l){const u=l.utm||{};const ad=u.utm_content||u.utm_term,cmp=u.utm_campaign,src=u.utm_source;
   if(!src&&!cmp&&!ad)return null;return {src:src||'—',cmp:cmp||'—',ad:ad||'—'};}
-function statusSel(l){return `<select class="status st-${l.status}" onchange="setStatus(${l.id},this.value,this)">${['novo','contatado','vendido','perdido','teste'].map(o=>`<option value="${o}"${o===l.status?' selected':''}>${o}</option>`).join('')}</select>`;}
+function statusSel(l){return `<select class="status st-${l.status}" onchange="setStatus(${l.id},this.value,this)">${['novo','contatado','vendido','reembolsado','perdido','teste'].map(o=>`<option value="${o}"${o===l.status?' selected':''}>${o}</option>`).join('')}</select>`;}
 function renderList(){
   const rows=filtered(), el=document.getElementById('crm-list');
   if(!rows.length){el.innerHTML='<div class="empty">Nenhum lead. Assim que alguém terminar o quiz, aparece aqui. 👀</div>';return;}
   if(crmView==='cards'){
     el.className='';
-    const cols=[{k:'novo',l:'Novo',c:'var(--novo)'},{k:'contatado',l:'Contatado',c:'var(--contatado)'},{k:'vendido',l:'Vendido',c:'var(--vendido)'},{k:'perdido',l:'Perdido',c:'var(--perdido)'},{k:'teste',l:'🧪 Teste',c:'var(--teste)'}];
+    const cols=[{k:'novo',l:'Novo',c:'var(--novo)'},{k:'contatado',l:'Contatado',c:'var(--contatado)'},{k:'vendido',l:'Vendido',c:'var(--vendido)'},{k:'reembolsado',l:'↩️ Reembolsado',c:'var(--reembolsado)'},{k:'perdido',l:'Perdido',c:'var(--perdido)'},{k:'teste',l:'🧪 Teste',c:'var(--teste)'}];
     el.innerHTML='<div class="board">'+cols.map(s=>{
       // ordena pela data em que o lead caiu NESTA coluna — mais recente no topo
       const items=rows.filter(l=>l.status===s.k).sort((a,b)=>new Date(colAt(b))-new Date(colAt(a)));
@@ -601,7 +609,8 @@ async function dropCard(e,status){ e.preventDefault();
 }
 function refreshCounts(){const c=crmCounts();const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
   set('c-total',c.total);set('c-novo',c.novo||0);set('c-cont',c.contatado||0);set('c-vend',c.vendido||0);
-  set('c-com',c.com);set('c-comsub',cMoney(c.comValor,'BRL')+' fechados');set('c-fat',cMoney(c.fat,'BRL'));}
+  set('c-com',c.com);set('c-comsub',cMoney(c.comValor,'BRL')+' fechados');set('c-fat',cMoney(c.fat,'BRL'));
+  set('c-fatsub',c.reembValor>0?'líquido · '+cMoney(c.reembValor,'BRL')+' reembolsados fora':'o que os leads já deixaram');}
 async function setStatus(id,status,el){
   if(el)el.className='status st-'+status;
   const l=LEADS.find(x=>x.id===id); if(l&&l.status!==status){l.status=status;l.status_at=new Date().toISOString();}

@@ -48,10 +48,11 @@ module.exports = async (req, res) => {
         AND (${inc} OR (nullif(utm->>'utm_campaign','') IS NOT NULL AND lower(coalesce(utm->>'utm_source','')) IN ('facebook','fb','instagram','ig','meta','messenger','msg','an')))
       GROUP BY 1 ORDER BY n DESC`;
 
-    // 💼 vendas do comercial (tag manual no CRM): total + por anúncio de origem do lead
+    // 💼 vendas do comercial (tag manual no CRM): total + por anúncio de origem do lead.
+    // Reembolsado fica fora: o lead continua contando como lead, mas a venda não se sustenta.
     const comercial = await sql`
       SELECT count(*)::int AS vendas, coalesce(sum(sale_value),0)::float AS valor
-      FROM leads WHERE created_at >= ${fromISO} AND created_at < ${toISO} AND status <> 'teste' AND comercial
+      FROM leads WHERE created_at >= ${fromISO} AND created_at < ${toISO} AND status NOT IN ('teste','reembolsado') AND comercial
         AND (${inc} OR (nullif(utm->>'utm_campaign','') IS NOT NULL AND lower(coalesce(utm->>'utm_source','')) IN ('facebook','fb','instagram','ig','meta','messenger','msg','an')))`;
 
     const comercialByAd = await sql`
@@ -60,7 +61,7 @@ module.exports = async (req, res) => {
              coalesce(nullif(utm->>'utm_content',''), nullif(utm->>'utm_term',''), '—') AS ad,
              count(*)::int AS vendas, coalesce(sum(sale_value),0)::float AS valor
       FROM leads
-      WHERE created_at >= ${fromISO} AND created_at < ${toISO} AND status <> 'teste' AND comercial
+      WHERE created_at >= ${fromISO} AND created_at < ${toISO} AND status NOT IN ('teste','reembolsado') AND comercial
         AND (${inc} OR (nullif(utm->>'utm_campaign','') IS NOT NULL AND lower(coalesce(utm->>'utm_source','')) IN ('facebook','fb','instagram','ig','meta','messenger','msg','an')))
       GROUP BY 1,2,3 ORDER BY valor DESC, vendas DESC LIMIT 100`;
 

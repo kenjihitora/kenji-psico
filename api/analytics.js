@@ -64,7 +64,18 @@ module.exports = async (req, res) => {
         AND (${inc} OR (nullif(utm->>'utm_campaign','') IS NOT NULL AND lower(coalesce(utm->>'utm_source','')) IN ('facebook','fb','instagram','ig','meta','messenger','msg','an')))
       GROUP BY 1,2,3 ORDER BY valor DESC, vendas DESC LIMIT 100`;
 
-    res.status(200).json({ funnel, sessions: sessions[0].n, leads: leads[0].n, byAd, byProfile, comercial: comercial[0], comercialByAd });
+    // funil por anúncio (?adFunnel=1): sessões agrupadas por utm_content + max_step — passagem do quiz por AD
+    let adFunnel = null;
+    if (q.adFunnel === '1') {
+      adFunnel = await sql`
+        SELECT coalesce(nullif(utm->>'utm_content',''),'(sem utm)') AS ad, max_step, count(*)::int AS n
+        FROM sessions
+        WHERE created_at >= ${fromISO} AND created_at < ${toISO}
+          AND (${inc} OR (nullif(utm->>'utm_campaign','') IS NOT NULL AND lower(coalesce(utm->>'utm_source','')) IN ('facebook','fb','instagram','ig','meta','messenger','msg','an')))
+        GROUP BY 1,2 ORDER BY 1,2`;
+    }
+
+    res.status(200).json({ funnel, sessions: sessions[0].n, leads: leads[0].n, byAd, byProfile, comercial: comercial[0], comercialByAd, adFunnel });
   } catch (e) {
     console.error('analytics error:', e);
     res.status(500).json({ error: 'server' });

@@ -48,11 +48,11 @@ module.exports = async (req, res) => {
     let insObj, entityUrl, idField, nameField;
     if (level === 'campaign') {
       insObj = acct; idField = 'campaign_id'; nameField = 'campaign_name';
-      entityUrl = `${G}/${acct}/campaigns?fields=id,name,effective_status,start_time,stop_time&limit=500&access_token=${token}`;
+      entityUrl = `${G}/${acct}/campaigns?fields=id,name,effective_status,start_time,stop_time,daily_budget,lifetime_budget&limit=500&access_token=${token}`;
     } else if (level === 'adset') {
       if (!parent) { res.status(400).json({ error: 'parent' }); return; }
       insObj = parent; idField = 'adset_id'; nameField = 'adset_name';
-      entityUrl = `${G}/${parent}/adsets?fields=id,name,effective_status,start_time,end_time&limit=500&access_token=${token}`;
+      entityUrl = `${G}/${parent}/adsets?fields=id,name,effective_status,start_time,end_time,daily_budget,lifetime_budget&limit=500&access_token=${token}`;
     } else {
       if (!parent) { res.status(400).json({ error: 'parent' }); return; }
       insObj = parent; idField = 'ad_id'; nameField = 'ad_name';
@@ -90,7 +90,8 @@ module.exports = async (req, res) => {
 
     const meta = {};
     ((ent.j && ent.j.data) || []).forEach(e => {
-      meta[e.id] = { status: e.effective_status, start: e.start_time || e.created_time, stop: e.stop_time || e.end_time || null };
+      meta[e.id] = { status: e.effective_status, start: e.start_time || e.created_time, stop: e.stop_time || e.end_time || null,
+        budget: Number(e.daily_budget || e.lifetime_budget) || null }; // budget na campanha = CBO; no conjunto = ABO
     });
 
     const data = ins.j.data || [];
@@ -114,7 +115,7 @@ module.exports = async (req, res) => {
       tLeads += ourLeads;
       if (s) { tSessTotal += s.total; tSessStarted += s.started; tSessVsl += s.vsl; }
       return {
-        id: d[idField], name, status: e.status || null,
+        id: d[idField], name, status: e.status || null, budget: e.budget || null,
         spend: m.spend,
         our_leads: ourLeads,
         cpl: ourLeads ? m.spend / ourLeads : null,

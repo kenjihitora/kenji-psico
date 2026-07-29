@@ -30,7 +30,13 @@ module.exports = async (req, res) => {
   }
   try {
     await ensureTable();
-    if (hasStatus) await sql`UPDATE leads SET status=${String(b.status)} WHERE id=${id}`;
+    // status_at só avança quando o status realmente muda (arrastar pra mesma coluna não reordena o card)
+    if (hasStatus) {
+      const s = String(b.status);
+      await sql`UPDATE leads SET status=${s},
+                  status_at = CASE WHEN status <> ${s} THEN now() ELSE status_at END
+                WHERE id=${id}`;
+    }
     if (hasCom) await sql`UPDATE leads SET comercial=${!!b.comercial}, sale_value=${b.comercial ? saleValue : null} WHERE id=${id}`;
     if (hasPur) await sql`UPDATE leads SET purchases=${JSON.stringify(purchases)}::jsonb WHERE id=${id}`;
     res.status(200).json({ ok: true });

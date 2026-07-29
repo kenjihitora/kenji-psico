@@ -106,6 +106,7 @@
   .kcard .nm{font-size:15px;font-weight:800;line-height:1.15}
   .kcard .dt{font-size:11px;color:var(--muted)}
   .kcard .korigin{font-size:11.5px;color:var(--muted)}
+  .kcard .incol{font-size:11px;color:var(--accent);font-weight:650;background:#f4f1ff;border-radius:7px;padding:3px 8px;align-self:flex-start}
   .wa{font-weight:650;text-decoration:none;color:var(--ink);display:inline-flex;align-items:center;gap:6px}
   .wa:hover{color:#18b98a}
   select.status{border:1.5px solid var(--line);border-radius:9px;padding:6px 8px;font-size:12.5px;font-weight:700;cursor:pointer}
@@ -193,6 +194,11 @@ function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','
 function fmtDate(s){try{return new Date(s).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit',hour:'2-digit',minute:'2-digit'});}catch{return s;}}
 function waDigits(w){return String(w||'').replace(/\D/g,'');}
 function iso(d){return new Date(d.getTime()-3*3600e3).toISOString().slice(0,10);} // data no fuso do Brasil (UTC-3)
+// quando o lead caiu na coluna atual (fallback: data de criação, p/ leads anteriores à migração)
+function colAt(l){return l.status_at||l.created_at;}
+function sinceTxt(s){const ms=Date.now()-new Date(s).getTime();if(!isFinite(ms)||ms<6e4)return 'agora mesmo';
+  const m=Math.floor(ms/6e4);if(m<60)return 'há '+m+'min';const h=Math.floor(m/60);if(h<24)return 'há '+h+'h';
+  const d=Math.floor(h/24);return d===1?'há 1 dia':'há '+d+' dias';}
 function daysAgo(n){return iso(new Date(Date.now()-n*864e5));}
 
 async function boot(){
@@ -551,7 +557,8 @@ function renderList(){
     el.className='';
     const cols=[{k:'novo',l:'Novo',c:'var(--novo)'},{k:'contatado',l:'Contatado',c:'var(--contatado)'},{k:'vendido',l:'Vendido',c:'var(--vendido)'},{k:'perdido',l:'Perdido',c:'var(--perdido)'},{k:'teste',l:'🧪 Teste',c:'var(--teste)'}];
     el.innerHTML='<div class="board">'+cols.map(s=>{
-      const items=rows.filter(l=>l.status===s.k);
+      // ordena pela data em que o lead caiu NESTA coluna — mais recente no topo
+      const items=rows.filter(l=>l.status===s.k).sort((a,b)=>new Date(colAt(b))-new Date(colAt(a)));
       return `<div class="column" ondragover="event.preventDefault()" ondragenter="this.classList.add('over')" ondragleave="if(event.target===this)this.classList.remove('over')" ondrop="dropCard(event,'${s.k}')">
         <div class="colhead"><span class="dotc" style="background:${s.c}"></span>${s.l}<span class="cnt">${items.length}</span></div>
         <div class="colbody">${items.map(kcard).join('')||'<div class="colempty">Arraste um lead pra cá</div>'}</div>
@@ -571,9 +578,11 @@ function renderList(){
   }
 }
 function kcard(l){const o=origin(l),wa=waDigits(l.whatsapp);
+  const moveu=Math.abs(new Date(colAt(l))-new Date(l.created_at))>6e4; // mudou de coluna depois de entrar
   return `<div class="kcard" draggable="true" ondragstart="dragStart(event,${l.id})">
     <div class="nm">${esc(l.name)||'—'}</div>
     <div class="dt">${fmtDate(l.created_at)}</div>
+    ${moveu?`<div class="incol" title="Caiu nesta coluna em ${fmtDate(colAt(l))}">🕐 nesta coluna ${sinceTxt(colAt(l))}</div>`:''}
     ${l.profile?`<span class="pill">${EMO[l.profile]||''} ${esc(l.profile)}</span>`:''}
     ${l.comercial?`<span class="compill" title="Venda do comercial">💼 ${l.sale_value!=null?cMoney(l.sale_value,'BRL'):'Comercial'}</span>`:''}
     ${purTotal(l)>0?`<span class="buypill" title="Total em compras atribuídas">💰 ${cMoney(purTotal(l),'BRL')}</span>`:''}
@@ -586,7 +595,7 @@ async function dropCard(e,status){ e.preventDefault();
   document.querySelectorAll('.column.over').forEach(c=>c.classList.remove('over'));
   const id=parseInt(e.dataTransfer.getData('text/plain'),10)||window._dragId;
   const l=LEADS.find(x=>x.id===id); if(!l){return;} if(l.status===status){renderList();return;}
-  l.status=status; renderList(); refreshCounts();
+  l.status=status; l.status_at=new Date().toISOString(); renderList(); refreshCounts();
   const r=await fetch('/api/update',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,status})});
   if(!r.ok) alert('Não consegui salvar. Recarregue a página.');
 }
@@ -595,7 +604,7 @@ function refreshCounts(){const c=crmCounts();const set=(id,v)=>{const e=document
   set('c-com',c.com);set('c-comsub',cMoney(c.comValor,'BRL')+' fechados');set('c-fat',cMoney(c.fat,'BRL'));}
 async function setStatus(id,status,el){
   if(el)el.className='status st-'+status;
-  const l=LEADS.find(x=>x.id===id); if(l)l.status=status;
+  const l=LEADS.find(x=>x.id===id); if(l&&l.status!==status){l.status=status;l.status_at=new Date().toISOString();}
   renderList(); refreshCounts();
   const r=await fetch('/api/update',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,status})});
   if(!r.ok) alert('Não consegui salvar o status.');

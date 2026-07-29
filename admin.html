@@ -143,6 +143,22 @@
   .crumb .sep{color:#c9c6d8}
   .crumb .cur{color:var(--ink);font-weight:750}
   .crumb .crumb-hint{color:var(--muted);font-weight:500;font-size:12.5px}
+  /* Relatórios */
+  .reps{display:flex;flex-direction:column;gap:12px;max-width:900px}
+  .rep{display:flex;gap:18px;align-items:flex-start;width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer;
+    background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 20px;transition:.15s}
+  .rep:hover{border-color:var(--accent-2);box-shadow:0 10px 26px -18px rgba(70,45,150,.65);transform:translateY(-1px)}
+  .rep:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .rep .num{flex:0 0 auto;width:52px;height:52px;border-radius:14px;display:grid;place-items:center;
+    background:linear-gradient(135deg,var(--accent),var(--accent-2));color:#fff;font-size:19px;font-weight:850;letter-spacing:-.02em}
+  .rep .body{flex:1;min-width:0;display:block}
+  .rep .t{display:block;font-size:16.5px;font-weight:800;line-height:1.25;margin-bottom:3px}
+  .rep .d{display:block;font-size:13.5px;color:var(--muted)}
+  .rep .rhl{display:block;font-size:13px;line-height:1.45;color:var(--ink);background:#faf9fe;border:1px solid var(--line);border-radius:10px;padding:8px 11px;margin-top:10px}
+  .rep .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+  .rep .tg{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;background:#f0ecff;color:var(--accent)}
+  .rep .go{flex:0 0 auto;align-self:center;color:var(--accent);font-weight:800;font-size:13px}
+  .repframe{width:100%;height:calc(100dvh - 190px);min-height:440px;border:1px solid var(--line);border-radius:16px;background:var(--card);display:block}
   /* modal */
   .modal-bg{position:fixed;inset:0;background:rgba(20,15,45,.45);display:none;place-items:center;padding:18px;z-index:30}
   .modal-bg.on{display:grid}
@@ -212,6 +228,7 @@ function enter(){
         <button class="tab" id="tab-analytics" onclick="switchTab('analytics')">📊 Analytics</button>
         <button class="tab" id="tab-campanhas" onclick="switchTab('campanhas')">📣 Campanhas</button>
         <button class="tab" id="tab-crm" onclick="switchTab('crm')">👥 CRM</button>
+        <button class="tab" id="tab-relatorios" onclick="switchTab('relatorios')">📄 Relatórios</button>
       </div>
       <div class="spacer"></div>
       <button class="btn sm ghost" onclick="logout()">Sair</button>
@@ -222,11 +239,12 @@ function enter(){
 }
 function switchTab(t){ TAB=t; renderContent(); }
 function renderContent(){
-  document.getElementById('tab-analytics').classList.toggle('on',TAB==='analytics');
-  document.getElementById('tab-campanhas').classList.toggle('on',TAB==='campanhas');
-  document.getElementById('tab-crm').classList.toggle('on',TAB==='crm');
+  ['analytics','campanhas','crm','relatorios'].forEach(t=>{
+    const el=document.getElementById('tab-'+t); if(el) el.classList.toggle('on',TAB===t);
+  });
   if(TAB==='analytics') renderAnalytics();
   else if(TAB==='campanhas') renderCampaigns();
+  else if(TAB==='relatorios') renderReports();
   else renderCRM();
 }
 async function logout(){ await fetch('/api/logout',{method:'POST'}); renderLogin(); }
@@ -441,6 +459,48 @@ function campaignsBody(){
     </div>
     ${table}
     <p class="fineprint">💡 <b>Leads · CPL · Início · VSL</b> vêm do NOSSO funil (cruzados por UTM no nível de <b>${noun}</b>, ignorando teste): <b>Início</b> = % das sessões que passaram da 1ª tela · <b>VSL</b> = % que chegaram na VSL (forward-only). O resto é do Meta: <b>Vendas / Faturamento / ROAS / CPA</b> dependem do evento de <b>Compra</b> · <b>Hook</b> = views 3s ÷ impressões · <b>Body</b> = views 75% ÷ impressões · <b>Duração</b> = dias desde o início.</p>`;
+}
+
+/* ---------- RELATÓRIOS ---------- */
+let REPORTS=null, repOpen=null;
+function renderReports(){
+  const c=document.getElementById('content');
+  if(repOpen){ c.innerHTML=reportView(repOpen); return; }
+  c.innerHTML=`<div id="rep-body">${REPORTS?reportsList():'<div class="loading">Carregando relatórios…</div>'}</div>`;
+  if(!REPORTS) loadReports();
+}
+async function loadReports(){
+  const r=await fetch('/api/reports');
+  if(r.status===401){ renderLogin(); return; }
+  REPORTS=r.ok?((await r.json()).reports||[]):[];
+  const b=document.getElementById('rep-body'); if(b) b.innerHTML=reportsList();
+}
+function reportsList(){
+  if(!REPORTS.length) return '<div class="empty">Nenhum relatório publicado ainda. 📄</div>';
+  return `<div class="reps">${REPORTS.map(r=>`
+    <button class="rep" onclick="openReport('${esc(r.id)}')">
+      <span class="num">${esc(r.id)}</span>
+      <span class="body">
+        <span class="t">${esc(r.title)}</span>
+        <span class="d">${esc(r.desc)}</span>
+        ${r.highlight?`<span class="rhl">💡 ${esc(r.highlight)}</span>`:''}
+        ${(r.tags||[]).length?`<span class="tags">${r.tags.map(t=>`<span class="tg">${esc(t)}</span>`).join('')}</span>`:''}
+      </span>
+      <span class="go">abrir →</span>
+    </button>`).join('')}</div>`;
+}
+function openReport(id){ repOpen=(REPORTS||[]).find(r=>r.id===id)||null; renderReports(); }
+function closeReport(){ repOpen=null; renderReports(); }
+function reportView(r){
+  const url='/api/report?id='+encodeURIComponent(r.id);
+  return `<div class="crumb">
+      <a onclick="closeReport()">📄 Relatórios</a><span class="sep">›</span>
+      <span class="cur">Relatório ${esc(r.id)}</span>
+      <span class="crumb-hint">· ${esc(r.desc)}</span>
+      <span class="spacer"></span>
+      <a class="btn sm ghost" href="${url}" target="_blank" rel="noopener" style="text-decoration:none;display:inline-flex;align-items:center">↗ Abrir em nova aba</a>
+    </div>
+    <iframe class="repframe" src="${url}&embed=1" title="Relatório ${esc(r.id)} — ${esc(r.title)}"></iframe>`;
 }
 
 /* ---------- CRM ---------- */

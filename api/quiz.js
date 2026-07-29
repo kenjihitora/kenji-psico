@@ -59,7 +59,18 @@ module.exports = async (req, res) => {
       WHERE created_at >= ${fromISO} AND created_at < ${toISO} AND max_step >= 17
         AND (${inc} OR (nullif(utm->>'utm_campaign','') IS NOT NULL AND lower(coalesce(utm->>'utm_source','')) = ANY(${META})))`;
 
-    res.status(200).json({ dur, hora, dow, tempoCompleto: tempoCompleto[0] });
+    // dia da semana × anúncio — pra explicar dias de volume alto e conversão baixa
+    const dowAd = await sql`
+      SELECT extract(dow FROM (created_at AT TIME ZONE 'America/Sao_Paulo'))::int AS d,
+             coalesce(nullif(utm->>'utm_content',''),'(sem utm)') AS ad,
+             count(*)::int AS sessoes,
+             count(*) FILTER (WHERE max_step >= 1)::int AS iniciaram,
+             count(*) FILTER (WHERE max_step >= 13)::int AS leads
+      FROM sessions
+      WHERE created_at >= ${fromISO} AND created_at < ${toISO}
+      GROUP BY 1,2 HAVING count(*) >= 5 ORDER BY 1, 3 DESC`;
+
+    res.status(200).json({ dur, hora, dow, dowAd, tempoCompleto: tempoCompleto[0] });
   } catch (e) {
     console.error('quiz error:', e);
     res.status(500).json({ error: 'server' });

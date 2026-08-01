@@ -243,13 +243,13 @@ const QUESTIONS = [
 
 const FLOW = [
   {type:"intro"},
-  {type:"gender"},
-  {type:"name"},{type:"age"},
+  {type:"gender"},{type:"age"},
   {type:"q",i:0},{type:"q",i:1},{type:"q",i:2},
   {type:"teaser"},
   {type:"q",i:3},{type:"q",i:4},{type:"q",i:5},{type:"q",i:6},
   {type:"science"},
   {type:"email"},
+  {type:"name"},
   {type:"calc"},
   {type:"reveal"},
   {type:"result"},
@@ -265,7 +265,7 @@ QUESTIONS.forEach(q => {
   }
 });
 
-const state = {pos:0, name:"", gender:null, age:null, answers:{}, whatsapp:"", utm:{}};
+const state = {pos:0, name:"", gender:null, age:null, answers:{}, whatsapp:"", utm:{}, leadId:null};
 try{ state.utm = Object.fromEntries(new URLSearchParams(location.search)); }catch(e){}
 // Meta Pixel — dispara evento com segurança (não quebra se o pixel for bloqueado)
 function fb(){ try{ if(window.fbq) window.fbq.apply(window, arguments); }catch(e){} }
@@ -358,7 +358,7 @@ function viewIntro(){return `
     <div style="font-size:10px;font-weight:700;letter-spacing:1.3px;color:#a6a4bb;margin-top:3px">CRP 18/09596</div>
   </div>`;}
 
-function viewName(){return `<div class="grow"></div><div class="step">Pra começar</div>
+function viewName(){return `<div class="grow"></div><div class="step">✍️ Só mais um detalhe</div>
   <h2>Como posso te chamar?</h2>
   <p class="sub">Seu primeiro nome, pra deixar o seu diagnóstico mais pessoal.</p>
   <input class="input" id="nm" type="text" placeholder="Seu primeiro nome" autocomplete="given-name" value="${(state.name||'').replace(/"/g,'&quot;')}" />
@@ -368,7 +368,13 @@ function bindName(){const inp=document.getElementById('nm'),btn=document.getElem
   const ok=v=>v.trim().length>=2;
   inp.addEventListener('input',()=>btn.disabled=!ok(inp.value));
   inp.addEventListener('keydown',e=>{if(e.key==='Enter'&&!btn.disabled)submitName();});}
-function submitName(){state.name=document.getElementById('nm').value.trim();go(state.pos+1);}
+function submitName(){state.name=document.getElementById('nm').value.trim();
+  if(state.leadId){
+    const payload={id:state.leadId,name:state.name,whatsapp:'+55'+state.whatsapp,gender:state.gender,age:state.age,
+      profile:computeResult(),scores:scores(),answers:answersExport(),utm:state.utm};
+    fetch('/api/lead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).catch(()=>{});
+  }
+  go(state.pos+1);}
 
 function viewPick(kind){
   const nm=state.name?esc(state.name):'';
@@ -434,7 +440,10 @@ function answersExport(){return QUESTIONS.map((q,i)=>{const a=state.answers[i];
 function submitEmail(){state.whatsapp=document.getElementById('wa').value.replace(/\D/g,'');
   const payload={name:state.name,whatsapp:'+55'+state.whatsapp,gender:state.gender,age:state.age,
     profile:computeResult(),scores:scores(),answers:answersExport(),utm:state.utm};
-  fetch('/api/lead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).catch(()=>{});
+  fetch('/api/lead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+    .then(r => r.json())
+    .then(res => { if(res && res.id) state.leadId = res.id; })
+    .catch(()=>{});
   fb('track','Lead',{content_name:payload.profile});
   go(state.pos+1);}
 

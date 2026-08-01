@@ -15,11 +15,21 @@ module.exports = async (req, res) => {
     const scores  = JSON.stringify(b.scores  || {});
     const answers = JSON.stringify(b.answers || []);
     const utm     = JSON.stringify(b.utm     || {});
-    const rows = await sql`
-      INSERT INTO leads (name, whatsapp, gender, age, profile, scores, answers, utm)
-      VALUES (${name}, ${whatsapp}, ${gender}, ${age}, ${profile}, ${scores}::jsonb, ${answers}::jsonb, ${utm}::jsonb)
-      RETURNING id`;
-    res.status(200).json({ ok: true, id: rows[0].id });
+    const id = b.id ? parseInt(b.id, 10) : null;
+    if (id) {
+      await sql`
+        UPDATE leads
+        SET name=${name}, whatsapp=${whatsapp}, gender=${gender}, age=${age}, profile=${profile},
+            scores=${scores}::jsonb, answers=${answers}::jsonb, utm=${utm}::jsonb
+        WHERE id=${id}`;
+      res.status(200).json({ ok: true, id });
+    } else {
+      const rows = await sql`
+        INSERT INTO leads (name, whatsapp, gender, age, profile, scores, answers, utm)
+        VALUES (${name}, ${whatsapp}, ${gender}, ${age}, ${profile}, ${scores}::jsonb, ${answers}::jsonb, ${utm}::jsonb)
+        RETURNING id`;
+      res.status(200).json({ ok: true, id: rows[0].id });
+    }
   } catch (e) {
     console.error('lead error:', e);
     res.status(500).json({ error: 'server' });

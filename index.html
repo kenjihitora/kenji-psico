@@ -243,8 +243,8 @@ const QUESTIONS = [
 
 const FLOW = [
   {type:"intro"},
-  {type:"name"},
-  {type:"gender"},{type:"age"},
+  {type:"gender"},
+  {type:"name"},{type:"age"},
   {type:"q",i:0},{type:"q",i:1},{type:"q",i:2},
   {type:"teaser"},
   {type:"q",i:3},{type:"q",i:4},{type:"q",i:5},{type:"q",i:6},
@@ -256,6 +256,14 @@ const FLOW = [
   {type:"vsl"}
 ];
 const NOBACK = new Set(["intro","calc","reveal","result","vsl"]);
+
+// Embaralhar as opções de cada pergunta para mitigar viés de posição
+QUESTIONS.forEach(q => {
+  for (let i = q.options.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [q.options[i], q.options[j]] = [q.options[j], q.options[i]];
+  }
+});
 
 const state = {pos:0, name:"", gender:null, age:null, answers:{}, whatsapp:"", utm:{}};
 try{ state.utm = Object.fromEntries(new URLSearchParams(location.search)); }catch(e){}

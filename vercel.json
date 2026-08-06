@@ -2,6 +2,7 @@
   "rewrites": [
     { "source": "/admin", "destination": "/admin.html" },
     { "source": "/whatsapp", "destination": "/whatsapp.html" },
-    { "source": "/diagnostico/:perfil", "destination": "/diagnostico.html?p=:perfil" }
+    { "source": "/diagnostico/:perfil", "destination": "/diagnostico.html?p=:perfil" },
+    { "source": "/oferta/:perfil", "destination": "/oferta.html?p=:perfil" }
   ]
 }

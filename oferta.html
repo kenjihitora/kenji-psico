@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fim da Procrastinação · Kenji Hirota</title>
+<link rel="icon" type="image/png" href="/favicon.png">
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#211f38; --muted:#6b6a80; --line:#eeeaf7; --card:#ffffff;
+    --acc:#6d4bf5; --soft:#efeafe; --acc2:#9068ff;
+    --dark:#1b1930; --dark2:#272343;
+    --now:#e2574c; --now-bg:#fdecea; --after:#2fb182; --after-bg:#e7f7f0;
+    --gold:#f0b429;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased}
+  body{font-family:"Fraunces",Georgia,serif;color:var(--ink);background:#f3f0fe;line-height:1.72;font-size:17.5px}
+  .ui{font-family:"Poppins",sans-serif}
+  .wrap{max-width:680px;margin:0 auto;padding:0 18px}
+  strong,b{font-weight:600;color:#161528}
+  em{font-style:italic}
+
+  /* ---------- HERO (ramifica por perfil) ---------- */
+  .hero{background:linear-gradient(180deg,var(--dark),var(--dark2));color:#fff;padding:44px 0 50px}
+  .hero .wrap{text-align:center}
+  .kick{font-family:"Poppins",sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;
+    text-transform:uppercase;color:var(--acc2);margin-bottom:16px}
+  .hero h1{font-family:"Poppins",sans-serif;font-size:33px;font-weight:800;line-height:1.18;
+    letter-spacing:-.6px;margin-bottom:18px}
+  .hero h1 .hl{color:var(--gold)}
+  .hero .subh{font-size:18.5px;color:rgba(255,255,255,.82);max-width:560px;margin:0 auto 26px;font-style:italic}
+  .hero .by{font-family:"Poppins",sans-serif;font-size:13px;color:rgba(255,255,255,.6);margin-top:22px}
+
+  .cta{display:inline-block;background:linear-gradient(180deg,#7a5bff,#5a3ce0);color:#fff;
+    font-family:"Poppins",sans-serif;font-weight:700;font-size:17px;letter-spacing:.2px;border:0;border-radius:15px;
+    padding:18px 34px;cursor:pointer;text-decoration:none;box-shadow:0 18px 40px -14px var(--acc)}
+  .cta:hover{filter:brightness(1.06)}
+  .cta small{display:block;font-weight:500;font-size:12px;opacity:.85;margin-top:3px;letter-spacing:.5px}
+  .cta small s{opacity:.7;text-decoration-thickness:1.5px}
+  .cta.gold{background:linear-gradient(180deg,#f6c14b,#e0a017);color:#3a2c00;box-shadow:0 18px 40px -14px rgba(224,160,23,.6)}
+
+  /* ---------- SECTIONS ---------- */
+  section{padding:46px 0}
+  .sec-alt{background:#fff}
+  h2{font-family:"Poppins",sans-serif;font-size:26px;font-weight:800;line-height:1.22;
+    letter-spacing:-.5px;margin-bottom:18px;text-align:center}
+  h2 .n{color:var(--acc)}
+  .lead{font-size:18.5px;margin-bottom:18px}
+  p{margin:0 0 17px}
+
+  .mirror{list-style:none;margin:8px 0}
+  .mirror li{display:flex;gap:13px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--line);font-size:17px}
+  .mirror li:last-child{border-bottom:0}
+  .mirror li::before{content:"";flex:0 0 9px;width:9px;height:9px;border-radius:50%;background:var(--now);margin-top:11px}
+
+  .callout{background:var(--soft);border-radius:18px;padding:24px 26px;margin:22px 0;font-size:18px;line-height:1.55}
+  .callout b{color:var(--acc)}
+
+  .conv{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:20px 0 6px}
+  .chip{font-family:"Poppins",sans-serif;font-size:13px;font-weight:600;padding:8px 15px;border-radius:20px;
+    background:#fff;border:1px solid var(--line);color:var(--muted)}
+  .chip.me{background:var(--acc);color:#fff;border-color:var(--acc)}
+  .conv-point{text-align:center;font-family:"Poppins",sans-serif;font-weight:700;color:var(--acc);
+    font-size:15px;margin:14px 0 4px;letter-spacing:.3px}
+
+  .mech{background:linear-gradient(180deg,var(--dark),var(--dark2));color:#fff;border-radius:22px;
+    padding:34px 30px;text-align:center;margin:8px 0}
+  .mech .kick{color:var(--acc2)}
+  .mech p{color:rgba(255,255,255,.85);margin:0}
+  .mech .big{font-family:"Poppins",sans-serif;font-size:22px;font-weight:800;color:#fff;line-height:1.3;margin-bottom:12px}
+  .mech .big .hl{color:var(--gold)}
+
+  .lessons{counter-reset:l;margin:14px 0 4px;display:grid;gap:9px}
+  .lesson{list-style:none;counter-increment:l;display:flex;gap:14px;align-items:center;
+    background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;font-size:16px}
+  .lesson::before{content:counter(l,decimal-leading-zero);flex:0 0 auto;font-family:"Poppins",sans-serif;
+    font-weight:800;font-size:15px;color:var(--acc);background:var(--soft);border-radius:9px;padding:6px 9px}
+  .bonus-line{display:flex;gap:14px;align-items:center;background:var(--after-bg);border:1px solid #cdeede;
+    border-radius:14px;padding:16px;margin-top:11px;font-size:16px;font-family:"Poppins",sans-serif;font-weight:600;color:#1f7a58}
+  .bonus-line .tag{font-size:11px;letter-spacing:1px;text-transform:uppercase;background:var(--after);color:#fff;
+    border-radius:6px;padding:3px 8px}
+
+  .author{display:flex;gap:20px;align-items:center;background:#fff;border:1px solid var(--line);
+    border-radius:20px;padding:24px}
+  .author .av{flex:0 0 auto;width:72px;height:72px;border-radius:50%;background:var(--acc);color:#fff;
+    display:grid;place-items:center;font-family:"Poppins",sans-serif;font-weight:800;font-size:30px}
+  .author .nm{font-family:"Poppins",sans-serif;font-weight:700;font-size:18px}
+  .author .cr{font-family:"Poppins",sans-serif;font-size:12px;color:var(--muted);letter-spacing:.3px;
+    text-transform:uppercase;margin-top:3px;line-height:1.5}
+  .author-quote{font-size:18px;font-style:italic;color:#3d3b56;margin-top:18px;text-align:center;line-height:1.55}
+
+  .offer{background:#fff;border:2px solid var(--soft);border-radius:24px;padding:32px 28px;text-align:center;
+    box-shadow:0 30px 70px -44px rgba(70,45,150,.5)}
+  .stack{text-align:left;margin:6px 0 22px}
+  .stack li{list-style:none;display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line);font-size:16.5px}
+  .stack li:last-child{border-bottom:0}
+  .stack li::before{content:"✓";flex:0 0 24px;width:24px;height:24px;border-radius:50%;background:var(--soft);
+    color:var(--acc);font-family:"Poppins",sans-serif;font-weight:800;font-size:12px;display:grid;place-items:center;margin-top:2px}
+  .anchor{font-size:16px;color:var(--muted);margin-bottom:6px}
+  .old-price{font-family:"Poppins",sans-serif;font-size:17px;color:var(--muted);margin-bottom:2px}
+  .old-price s{text-decoration-color:var(--now);text-decoration-thickness:2px}
+  .price{font-family:"Poppins",sans-serif;margin:4px 0 4px}
+  .price .val{font-size:52px;font-weight:800;color:var(--ink);letter-spacing:-1px;line-height:1}
+  .price .cents{font-size:24px;vertical-align:super}
+  .price .cur{font-size:22px;color:var(--muted);vertical-align:super;margin-right:2px}
+  .price-sub{font-family:"Poppins",sans-serif;font-size:13px;color:var(--muted);margin-bottom:16px}
+  .urgency{display:inline-flex;align-items:center;gap:8px;font-family:"Poppins",sans-serif;
+    font-size:13px;font-weight:600;color:var(--now);background:var(--now-bg);border-radius:20px;
+    padding:8px 16px;margin-bottom:20px}
+  .urgency .dot{width:7px;height:7px;border-radius:50%;background:var(--now);animation:pulse 1.4s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+  @media (prefers-reduced-motion: reduce){ .urgency .dot{animation:none} }
+
+  .guarantee{background:var(--after-bg);border:1px solid #cdeede;border-radius:20px;padding:28px 26px;text-align:center}
+  .guarantee .seal{font-size:44px;margin-bottom:8px}
+  .guarantee h3{font-family:"Poppins",sans-serif;font-size:20px;font-weight:800;color:#1f7a58;margin-bottom:10px}
+  .guarantee p{color:#2a6b52;margin:0;font-size:16.5px}
+
+  .faq details{background:#fff;border:1px solid var(--line);border-radius:14px;margin-bottom:10px;overflow:hidden}
+  .faq summary{font-family:"Poppins",sans-serif;font-weight:600;font-size:16px;padding:17px 20px;cursor:pointer;
+    list-style:none;display:flex;justify-content:space-between;gap:10px}
+  .faq summary::-webkit-details-marker{display:none}
+  .faq summary::after{content:"+";color:var(--acc);font-weight:800;font-size:20px}
+  .faq details[open] summary::after{content:"–"}
+  .faq .ans{padding:0 20px 18px;font-size:16px;color:#3d3b56}
+
+  .close{background:linear-gradient(180deg,var(--dark),var(--dark2));color:#fff;text-align:center;padding:52px 0}
+  .close h2{color:#fff}
+  .close h2 .hl{color:var(--gold)}
+  .close p{color:rgba(255,255,255,.82);max-width:540px;margin:0 auto 26px;font-size:18px}
+  .close .disc{font-family:"Poppins",sans-serif;font-size:11.5px;color:rgba(255,255,255,.45);margin-top:22px;line-height:1.6}
+
+  .center{text-align:center}
+  @media(max-width:560px){
+    .hero h1{font-size:27px}h2{font-size:22px}.price .val{font-size:44px}
+    .author{flex-direction:column;text-align:center}
+  }
+</style>
+
+<!-- Meta Pixel -->
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+document,'script','https://connect.facebook.net/en_US/fbevents.js');
+fbq('init','1033317898699732');fbq('track','PageView');
+</script>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kick" id="hero-kick"></div>
+    <h1 id="hero-h1"></h1>
+    <p class="subh" id="hero-sub"></p>
+    <a class="cta" href="#comprar" id="hero-cta"></a>
+    <div class="by ui">Kenji Hirota · Psicólogo · CRP 18/09596</div>
+  </div>
+</header>
+
+<!-- ESPELHO DO PROBLEMA (ramifica) -->
+<section>
+  <div class="wrap">
+    <h2 id="mir-h2"></h2>
+    <p class="lead" id="mir-lead"></p>
+    <ul class="mirror" id="mir-list"></ul>
+    <div class="callout" id="mir-callout"></div>
+  </div>
+</section>
+
+<!-- CONVERGÊNCIA (ramifica → converge) -->
+<section class="sec-alt">
+  <div class="wrap">
+    <h2>Existem 5 perfis de procrastinação. Todos travam <span class="n">no mesmo ponto</span>.</h2>
+    <p id="conv-intro"></p>
+    <div class="conv ui" id="conv-chips"></div>
+    <div class="conv-point ui">↓ todos compartilham a mesma raiz ↓</div>
+    <p class="center">Um <b>gatilho automático</b> dispara um desconforto antes de você começar. Adiar desliga esse desconforto na hora, num alívio imediato. O cérebro aprende que adiar alivia, e repete. A cada volta, o ciclo fica mais forte.</p>
+    <div class="callout">É por isso que <b>"só se esforçar mais" nunca funcionou</b>. O esforço chega tarde, depois que o gatilho já venceu. Você não estava atacando o ciclo no ponto onde ele quebra.</div>
+  </div>
+</section>
+
+<!-- MECANISMO (fixo) -->
+<section>
+  <div class="wrap">
+    <div class="mech">
+      <div class="kick ui">O que muda com o método</div>
+      <div class="big ui">O <span class="hl">Fim da Procrastinação</span> não te ensina a ter mais disciplina.</div>
+      <p>Te ensina a interromper o gatilho no começo, que é onde o ciclo realmente quebra. Você para de brigar com o comportamento lá no fim, quando o incômodo já venceu, e passa a agir no instante em que ele nasce.</p>
+    </div>
+  </div>
+</section>
+
+<!-- O QUE VOCÊ RECEBE (fixo) -->
+<section class="sec-alt">
+  <div class="wrap">
+    <h2>As 9 aulas que te tiram do ciclo</h2>
+    <p class="center" style="color:var(--muted);font-family:'Poppins',sans-serif;font-size:14.5px;margin-bottom:8px">Aulas curtas, direto ao ponto. Você assiste no celular em minutos e já sai aplicando.</p>
+    <ul class="lessons" id="lessons"></ul>
+    <div class="bonus-line ui"><span class="tag">Bônus</span> Desafio de 30 dias guiado: um passo por dia, pra você não depender de motivação</div>
+  </div>
+</section>
+
+<!-- AUTORIDADE (fixo) -->
+<section>
+  <div class="wrap">
+    <div class="author">
+      <div class="av ui">K</div>
+      <div>
+        <div class="nm ui">Kenji Hirota</div>
+        <div class="cr ui">Psicólogo (PUCPR) · Pós-graduado em Psicologia Baseada em Evidências · +100 alunos · CRP 18/09596</div>
+      </div>
+    </div>
+    <p class="author-quote">"Eu passei anos preso exatamente nesse ciclo. Prometia, adiava, e me culpava achando que o problema era o meu caráter. Foi a psicologia científica, a mesma que eu ensino aqui, que me tirou disso. Eu não construí esse método na teoria. Construí vivendo."</p>
+  </div>
+</section>
+
+<!-- OFERTA (fixo) -->
+<section class="sec-alt" id="comprar">
+  <div class="wrap">
+    <div class="offer">
+      <h2 style="margin-bottom:20px">O que você recebe hoje</h2>
+      <ul class="stack">
+        <li>As 9 aulas do Protocolo Fim da Procrastinação (acesso imediato e vitalício)</li>
+        <li>Desafio de 30 dias guiado, um passo por dia pra sair da teoria</li>
+        <li>Método baseado em psicologia científica, não em "dicas de produtividade"</li>
+        <li>Acesso no celular, computador e tablet, quantas vezes precisar</li>
+      </ul>
+      <p class="anchor">Uma consulta comigo, como psicólogo, custa muito mais que isso. Aqui é o mesmo método, na sua mão.</p>
+      <div class="old-price ui">De <s id="p-de"></s> por</div>
+      <div class="price"><span class="cur">R$</span><span class="val" id="p-val"></span><span class="cents" id="p-cents"></span></div>
+      <div class="price-sub ui">pagamento único · acesso imediato</div>
+      <div class="urgency ui"><span class="dot"></span><span id="urgency-txt">Oferta válida por 24h</span></div>
+      <a class="cta gold buy" href="#" style="width:100%" id="cta-offer"></a>
+    </div>
+  </div>
+</section>
+
+<!-- GARANTIA (fixo) -->
+<section>
+  <div class="wrap">
+    <div class="guarantee">
+      <div class="seal">🛡️</div>
+      <h3>Garantia total de 7 dias</h3>
+      <p>Assista as aulas, comece a aplicar. Se em 7 dias você sentir que não é pra você, pede o reembolso e recebe cada centavo de volta. Sem burocracia, sem pergunta. O risco de testar é todo meu.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ (fixo) -->
+<section class="sec-alt">
+  <div class="wrap">
+    <h2>Perguntas frequentes</h2>
+    <div class="faq">
+      <details open>
+        <summary class="ui">Vou conseguir aplicar mesmo sendo procrastinador?</summary>
+        <div class="ans">Foi exatamente pra isso que o Desafio de 30 dias existe. Ele te dá um passo por dia, então você não depende de motivação, depende de seguir o trilho. E as aulas são curtas de propósito, pra não virarem mais uma coisa que você adia.</div>
+      </details>
+      <details>
+        <summary class="ui">Quanto tempo eu preciso por dia?</summary>
+        <div class="ans">Minutos. As aulas são curtas e o desafio foi feito pra caber num dia corrido, não pra virar mais uma obrigação pesada.</div>
+      </details>
+      <details>
+        <summary class="ui">Já tentei de tudo. Por que isso seria diferente?</summary>
+        <div class="ans">Porque tudo que você tentou atacava o comportamento lá no fim, quando o incômodo já tinha vencido. Aqui você aprende a interromper o gatilho no começo, que é onde o ciclo realmente quebra.</div>
+      </details>
+      <details>
+        <summary class="ui">Como eu recebo o acesso?</summary>
+        <div class="ans">Assim que o pagamento é aprovado você recebe o acesso à área de membros e já começa. Funciona no celular, no computador e no tablet.</div>
+      </details>
+      <details>
+        <summary class="ui">E se não for pra mim?</summary>
+        <div class="ans">Você tem 7 dias de garantia total. Se sentir que não é pra você, devolvemos o valor inteiro, sem complicação.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- FECHAMENTO (fixo) -->
+<section class="close">
+  <div class="wrap">
+    <h2>Daqui a um ano, o <span class="hl">mesmo dia</span> vai chegar.</h2>
+    <p>Você vai abrir de novo aquilo que vem adiando, sentir a mesma ansiedade, e decidir. A diferença entre continuar travado e finalmente começar não é força de vontade. É saber onde o ciclo quebra. Eu te levo até lá.</p>
+    <a class="cta gold buy" href="#" id="cta-close"></a>
+    <div class="disc ui">Este produto não garante resultados automáticos. Os resultados dependem da aplicação individual do método.<br>© 2026 Kenji Hirota · Política de Privacidade · Termos de Uso</div>
+  </div>
+</section>
+
+<script>
+/* =======================================================================
+   CONFIGURAÇÃO — mexa só aqui pra mudar preço, checkout ou aulas.
+   Vale para as 5 páginas de uma vez.
+   ======================================================================= */
+const OFERTA = {
+  precoDe: 'R$ 197,90',
+  precoInteiro: '47',
+  precoCentavos: ',90',
+  precoTexto: 'R$ 47,90',
+  // ⚠️ CONFERIR: link do checkout de R$ 47,90 na Kiwify.
+  // O checkout em uso até aqui (xBMVt0h) é o do Fim da Procrastinação a R$ 49,90.
+  checkout: 'https://pay.kiwify.com.br/xBMVt0h',
+  horasDeOferta: 24,
+};
+
+const AULAS = [
+  'Boas-vindas: comece por aqui',
+  'Por que a gente procrastina',
+  'A armadilha do alívio imediato',
+  'Identificando os pensamentos sabotadores',
+  'Clareza gera ação',
+  'Planejamento básico',
+  'Como vencer a inércia',
+  'Sono e ambiente',
+  'Recompense o processo · Quebrando o ciclo da autossabotagem',
+];
+
+const ORDEM = ['Perfeccionista','Evitativo','Impulsivo','Sobrecarregado','Indeciso'];
+
+const PERFIS = {
+  Perfeccionista:{
+    h1:'Você não precisa <span class="hl">baixar seus padrões</span>. Precisa parar de deixar o medo de errar decidir a hora em que você começa.',
+    sub:'O método passo a passo pra interromper o gatilho que te faz adiar, pra você finalmente entregar sem a ansiedade escolher por você.',
+    cta:'Quero destravar de vez',
+    h2:'Você é exigente em tudo. Menos na hora de entregar.',
+    lead:'Não é falta de capacidade, você já provou que dá conta. É que, na hora de começar aquela tarefa que importa, algo trava. E você já reconhece o padrão:',
+    bullets:[
+      'Você revira cada detalhe antes de entregar. E, às vezes, acaba não entregando.',
+      '"Se eu não vou fazer do meu jeito, prefiro nem começar." Adiar dá alívio, porque começar mal dói mais do que não começar.',
+      'Quando termina, quase nunca sente que ficou bom o suficiente.',
+      'Os outros te acham caprichoso. Por dentro, é cansaço.',
+    ],
+    callout:'Procrastinar, pra você, não é fugir do trabalho. É fugir da <b>ansiedade que a régua altíssima gera antes do trabalho</b>. E adiar desliga essa ansiedade na hora.',
+    outros:'evitar o desconforto, outra por excesso de estímulo, outra por sobrecarga, outra por medo de decidir errado',
+  },
+  Evitativo:{
+    h1:'Você não é preguiçoso. Você aprendeu a <span class="hl">fugir da emoção</span> que a tarefa traz, e dá pra desaprender.',
+    sub:'O método passo a passo pra encarar o desconforto no lugar de fugir dele, pra a tarefa parar de crescer cada vez que você adia.',
+    cta:'Quero sair do ciclo da fuga',
+    h2:'Não é que você não queira. É que fugir dá alívio na hora.',
+    lead:'A tarefa carrega um desconforto, e o seu cérebro escolhe não sentir isso agora. Não é falta de vontade, é uma fuga que já virou automática. E você reconhece:',
+    bullets:[
+      'Você "esquece" de propósito a tarefa que pesa, e se ocupa com mil coisas pequenas pra não encarar.',
+      'Adiar dá um alívio imediato. Depois vem a culpa, mas na hora o alívio vence.',
+      'Quanto mais você foge, maior a tarefa fica na sua cabeça, e mais difícil de começar.',
+      'Os outros acham que é preguiça. Por dentro, é um desconforto que você não quer sentir.',
+    ],
+    callout:'Procrastinar, pra você, não é fugir do trabalho. É fugir do <b>desconforto emocional que vem antes do trabalho</b>. E adiar desliga esse desconforto na hora.',
+    outros:'perfeccionismo, outra por excesso de estímulo, outra por sobrecarga, outra por medo de decidir errado',
+  },
+  Impulsivo:{
+    h1:'Você não precisa de <span class="hl">mais foco</span>. Precisa de um ambiente que pare de jogar contra você.',
+    sub:'O método passo a passo pra o importante parar de perder pro prazer imediato, sem depender de uma força de vontade que ninguém tem o dia todo.',
+    cta:'Quero recuperar o meu foco',
+    h2:'Seu foco não é fraco. Ele é sequestrado.',
+    lead:'Sempre aparece algo mais prazeroso e urgente na hora, e sua atenção vai atrás. Não é falta de foco, é excesso de estímulo disputando ele. E você reconhece:',
+    bullets:[
+      'Você pensa "só uma coisinha rápida antes" e, quando vê, o dia inteiro voou.',
+      'Troca de tarefa o tempo todo, mil abas abertas, e o importante fica sempre pra depois.',
+      'Só engrena quando a água bate na bunda. A adrenalina do prazo é o que te faz andar.',
+      'Você começa animado, mas qualquer notificação mais interessante te tira do trilho.',
+    ],
+    callout:'Procrastinar, pra você, não é falta de foco. É o <b>prazer imediato sequestrando sua atenção</b> antes de você perceber. E ceder a ele desliga o incômodo do importante na hora.',
+    outros:'perfeccionismo, outra por evitar o desconforto, outra por sobrecarga, outra por medo de decidir errado',
+  },
+  Sobrecarregado:{
+    h1:'A sua paralisia não é preguiça. É <span class="hl">excesso de carga</span>, e dá pra organizar o caos.',
+    sub:'O método passo a passo pra transformar o monte que trava a sua cabeça numa fila clara de próximos passos, um de cada vez.',
+    cta:'Quero sair da paralisia',
+    h2:'Com tudo gritando junto, o cérebro simplesmente congela.',
+    lead:'Não é que você não queira começar. É que, com tanta coisa acumulada na cabeça, dá um branco e você trava. Não é preguiça, é sobrecarga. E você reconhece:',
+    bullets:[
+      'Você olha pra lista, sente o peso de tudo de uma vez, e não sabe nem por onde começar.',
+      'É tanta coisa acumulada que dá um branco geral e você entra em pânico.',
+      'No fim do dia, um cansaço mental te derruba, como se carregasse um peso que nem era seu.',
+      'Você sente que perdeu o controle de tanta coisa que tem pra fazer.',
+    ],
+    callout:'Procrastinar, pra você, não é fugir do trabalho. É o <b>cérebro congelando diante do excesso de carga</b>. Adiar é a forma que ele encontra de aliviar a pressão na hora.',
+    outros:'perfeccionismo, outra por evitar o desconforto, outra por excesso de estímulo, outra por medo de decidir errado',
+  },
+  Indeciso:{
+    h1:'Você não está sem informação. Está <span class="hl">fugindo do risco de decidir</span>, e isso tem saída.',
+    sub:'O método passo a passo pra decidir bom o suficiente e seguir, sem o peso de ter que acertar sempre travando cada escolha.',
+    cta:'Quero parar de travar nas escolhas',
+    h2:'O que te trava não é a tarefa. É a escolha.',
+    lead:'O medo de decidir errado te mantém pesquisando, comparando e adiando o bater do martelo. Você confunde analisar com avançar. E você reconhece:',
+    bullets:[
+      'Você fica caçando mil formas de fazer, mas não consegue escolher uma pra começar.',
+      'Fica pesquisando mil jeitos de resolver e, quando vê, não sobrou tempo.',
+      'Quando escolhe, fica remoendo o tempo todo se não era melhor o outro caminho.',
+      'Analisa tudo exaustivamente, mas na hora de bater o martelo continua inseguro.',
+    ],
+    callout:'Procrastinar, pra você, não é fugir do trabalho. É fugir do <b>risco de escolher errado</b>. Adiar a decisão desliga esse medo na hora, e te mantém preso na análise.',
+    outros:'perfeccionismo, outra por evitar o desconforto, outra por excesso de estímulo, outra por sobrecarga',
+  },
+};
+
+/* ---------- resolve o perfil da URL (/oferta/{perfil} ou ?p=) ---------- */
+function achaPerfil(){
+  let p='';
+  try{ p=new URLSearchParams(location.search).get('p')||''; }catch(e){}
+  if(!p){ const m=location.pathname.match(/\/oferta\/([^/?#]+)/i); if(m) p=m[1]; }
+  p=decodeURIComponent(p||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().trim();
+  const achado=ORDEM.find(k=>k.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase()===p);
+  return achado||'Perfeccionista';
+}
+const PERFIL=achaPerfil();
+const D=PERFIS[PERFIL];
+
+/* ---------- monta a página ---------- */
+const $=id=>document.getElementById(id);
+document.title='Fim da Procrastinação · Perfil '+PERFIL;
+$('hero-kick').textContent='Feito pro seu perfil · '+PERFIL;
+$('hero-h1').innerHTML=D.h1;
+$('hero-sub').textContent=D.sub;
+$('hero-cta').innerHTML=D.cta+'<small>acesso imediato · de <s>'+OFERTA.precoDe+'</s> por '+OFERTA.precoTexto+'</small>';
+$('mir-h2').textContent=D.h2;
+$('mir-lead').textContent=D.lead;
+$('mir-list').innerHTML=D.bullets.map(b=>'<li>'+b+'</li>').join('');
+$('mir-callout').innerHTML=D.callout;
+$('conv-intro').textContent='O seu diagnóstico deu '+PERFIL+'. Outra pessoa trava por '+D.outros+'.';
+$('conv-chips').innerHTML=ORDEM.map(k=>'<span class="chip'+(k===PERFIL?' me':'')+'">'+k+'</span>').join('');
+$('lessons').innerHTML=AULAS.map(a=>'<li class="lesson ui">'+a+'</li>').join('');
+$('p-de').textContent=OFERTA.precoDe;
+$('p-val').textContent=OFERTA.precoInteiro;
+$('p-cents').textContent=OFERTA.precoCentavos;
+const btnCompra='Começar agora por '+OFERTA.precoTexto+'<small>acesso imediato · garantia de 7 dias</small>';
+$('cta-offer').innerHTML=btnCompra;
+$('cta-close').innerHTML='Começar por '+OFERTA.precoTexto+'<small>acesso imediato · garantia de 7 dias</small>';
+
+/* ---------- checkout: carrega o perfil e as UTMs junto ---------- */
+function urlCheckout(){
+  const u=new URL(OFERTA.checkout);
+  u.searchParams.set('utm_content', PERFIL);
+  try{
+    const guardadas=JSON.parse(sessionStorage.getItem('kenji_utm')||'{}');
+    Object.keys(guardadas).forEach(k=>{ if(/^utm_/.test(k)&&k!=='utm_content') u.searchParams.set(k,guardadas[k]); });
+  }catch(e){}
+  return u.toString();
+}
+document.querySelectorAll('a.buy').forEach(a=>{
+  a.href=urlCheckout();
+  a.addEventListener('click',()=>{ try{ fbq('track','InitiateCheckout',{content_name:'Fim da Procrastinação · '+PERFIL}); }catch(e){} });
+});
+
+/* ---------- contagem regressiva da oferta ---------- */
+(function(){
+  const KEY='kenji_offer_deadline';
+  let end=localStorage.getItem(KEY);
+  if(!end){ end=Date.now()+OFERTA.horasDeOferta*3600e3; localStorage.setItem(KEY,end); }
+  end=parseInt(end,10);
+  const el=$('urgency-txt');
+  function tick(){
+    const diff=end-Date.now();
+    if(diff<=0){ el.textContent='Oferta expirando'; return; }
+    const h=Math.floor(diff/3.6e6), m=Math.floor(diff%3.6e6/6e4), s=Math.floor(diff%6e4/1e3);
+    const pad=n=>n<10?'0'+n:n;
+    el.textContent='Oferta válida por '+pad(h)+'h '+pad(m)+'m '+pad(s)+'s';
+  }
+  tick(); setInterval(tick,1000);
+})();
+</script>
+</body>
+</html>

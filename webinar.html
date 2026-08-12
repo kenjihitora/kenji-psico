@@ -21,6 +21,9 @@
     --live:#e2574c;
   }
   *{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion:reduce){ html{scroll-behavior:auto} }
+  [id]{scroll-margin-top:18px}
   body{font-family:"Fraunces",Georgia,serif;color:var(--ink);background:var(--paper);line-height:1.7;font-size:17.5px;overflow-x:hidden}
   .ui{font-family:"Poppins",sans-serif}
   .wrap{max-width:1040px;margin:0 auto;padding:0 20px}
@@ -70,6 +73,9 @@
     transition:transform .14s,box-shadow .2s}
   .cta:hover{transform:translateY(-2px);box-shadow:0 26px 54px -16px rgba(240,180,41,.9)}
   .cta small{font-weight:500;font-size:12px;opacity:.72;margin-top:2px;letter-spacing:.4px}
+  /* CTA de fim de seção */
+  .ctasec{display:flex;justify-content:center;margin-top:34px}
+  .ctasec .cta{box-shadow:0 16px 36px -16px rgba(240,180,41,.6)}
 
   /* --------- mockup do livro (CSS puro, arte própria) --------- */
   .bookstage{display:grid;place-items:center;perspective:1400px}
@@ -270,6 +276,41 @@ fbq('init','1033317898699732');fbq('track','PageView');
   </div>
 </div>
 
+<!-- ================= INSCRIÇÃO (principal, logo no alto) ================= -->
+<section class="signup js-signup" id="inscricao">
+  <div class="wrap">
+    <div class="eyebrow ui" style="color:var(--gold2)">Inscrição gratuita</div>
+    <h2>Garanta a sua vaga</h2>
+    <p class="lede">O link da transmissão e o lembrete chegam no seu WhatsApp.</p>
+
+    <div class="form">
+      <form novalidate>
+        <div class="field">
+          <label class="ui" for="nome1">Como podemos te chamar?</label>
+          <input class="inp f-nome" id="nome1" type="text" placeholder="Seu primeiro nome" autocomplete="given-name">
+        </div>
+        <div class="field">
+          <label class="ui" for="wa1">Seu WhatsApp</label>
+          <div class="phonerow">
+            <span class="ddi ui">🇧🇷 +55</span>
+            <input class="inp f-wa" id="wa1" type="tel" inputmode="numeric" placeholder="(11) 99999-9999" autocomplete="tel-national">
+          </div>
+        </div>
+        <button class="btn f-btn" type="submit" disabled>Quero participar no sábado</button>
+        <div class="erro ui f-erro"></div>
+        <div class="formnote ui">Você recebe o link da aula e um lembrete antes de começar.<br>Sem spam — saia quando quiser.</div>
+      </form>
+
+      <div class="done f-done">
+        <div class="ic">🎟️</div>
+        <h3>Vaga garantida!</h3>
+        <p>Enviamos a confirmação pro seu WhatsApp. O link da transmissão chega pouco antes de começar.</p>
+        <div class="badge ui">Sábado, 15/08 · 14h (Brasília)</div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ================= O QUE VOCÊ VAI APRENDER ================= -->
 <section>
   <div class="wrap">
@@ -309,6 +350,7 @@ fbq('init','1033317898699732');fbq('track','PageView');
         <p>Um dos achados mais contraintuitivos da área: quem se culpa por ter adiado tende a adiar mais na próxima. Quem se perdoa, adia menos. O Kenji explica o mecanismo por trás disso.</p>
       </div>
     </div>
+    <div class="ctasec"><a class="cta ui" href="#inscricao">Quero participar da aula<small>gratuito · sábado, 14h</small></a></div>
   </div>
 </section>
 
@@ -319,6 +361,7 @@ fbq('init','1033317898699732');fbq('track','PageView');
       <p>Toda vez que você adia para se sentir melhor agora, você ensina o seu cérebro a fazer de novo.</p>
       <div class="src ui">A ideia central de The Procrastination Puzzle</div>
     </div>
+    <div class="ctasec"><a class="cta ui" href="#inscricao">Garantir minha vaga gratuita<small>15 de agosto · 14h Brasília</small></a></div>
   </div>
 </section>
 
@@ -334,6 +377,7 @@ fbq('init','1033317898699732');fbq('track','PageView');
       <div class="for"><span class="ck ui">✓</span><div>Cansou de ouvir que é “só se esforçar mais” e quer entender o que a pesquisa realmente diz.</div></div>
       <div class="for"><span class="ck ui">✓</span><div>Quer ouvir sobre isso de um psicólogo, não de um coach de produtividade.</div></div>
     </div>
+    <div class="ctasec"><a class="cta ui" href="#inscricao">Essa aula é pra mim<small>inscrição gratuita · vagas limitadas</small></a></div>
   </div>
 </section>
 
@@ -353,32 +397,32 @@ fbq('init','1033317898699732');fbq('track','PageView');
   </div>
 </section>
 
-<!-- ================= INSCRIÇÃO ================= -->
-<section class="signup" id="inscricao">
+<!-- ================= INSCRIÇÃO (fechamento) ================= -->
+<section class="signup js-signup" id="inscricao-final">
   <div class="wrap">
-    <div class="eyebrow ui" style="color:var(--gold2)">Inscrição gratuita</div>
-    <h2>Garanta a sua vaga</h2>
-    <p class="lede">O link da transmissão e o lembrete chegam no seu WhatsApp.</p>
+    <div class="eyebrow ui" style="color:var(--gold2)">Última chamada</div>
+    <h2>Sábado, 14h. <span style="color:var(--gold2)">Te vejo lá?</span></h2>
+    <p class="lede">Deixa seu nome e WhatsApp que eu te mando o link da transmissão.</p>
 
     <div class="form">
-      <form id="frm" novalidate>
+      <form novalidate>
         <div class="field">
-          <label class="ui" for="nome">Como podemos te chamar?</label>
-          <input class="inp" id="nome" type="text" placeholder="Seu primeiro nome" autocomplete="given-name">
+          <label class="ui" for="nome2">Como podemos te chamar?</label>
+          <input class="inp f-nome" id="nome2" type="text" placeholder="Seu primeiro nome" autocomplete="given-name">
         </div>
         <div class="field">
-          <label class="ui" for="wa">Seu WhatsApp</label>
+          <label class="ui" for="wa2">Seu WhatsApp</label>
           <div class="phonerow">
             <span class="ddi ui">🇧🇷 +55</span>
-            <input class="inp" id="wa" type="tel" inputmode="numeric" placeholder="(11) 99999-9999" autocomplete="tel-national">
+            <input class="inp f-wa" id="wa2" type="tel" inputmode="numeric" placeholder="(11) 99999-9999" autocomplete="tel-national">
           </div>
         </div>
-        <button class="btn" id="btn" type="submit" disabled>Quero participar no sábado</button>
-        <div class="erro ui" id="erro"></div>
+        <button class="btn f-btn" type="submit" disabled>Quero participar no sábado</button>
+        <div class="erro ui f-erro"></div>
         <div class="formnote ui">Você recebe o link da aula e um lembrete antes de começar.<br>Sem spam — saia quando quiser.</div>
       </form>
 
-      <div class="done" id="done">
+      <div class="done f-done">
         <div class="ic">🎟️</div>
         <h3>Vaga garantida!</h3>
         <p>Enviamos a confirmação pro seu WhatsApp. O link da transmissão chega pouco antes de começar.</p>
@@ -414,44 +458,55 @@ const QUANDO = new Date('2026-08-15T14:00:00-03:00');
   tick(); setInterval(tick,1000);
 })();
 
-/* ---------- formulário ---------- */
+/* ---------- formulários (o do alto e o do fechamento) ---------- */
 (function(){
-  const nome=document.getElementById('nome'), wa=document.getElementById('wa'),
-        btn=document.getElementById('btn'), erro=document.getElementById('erro'),
-        frm=document.getElementById('frm'), done=document.getElementById('done');
+  const caixas=[...document.querySelectorAll('.js-signup')];
 
   function fmt(v){ v=(v||'').replace(/\D/g,'').slice(0,11);
     if(v.length<=2) return v.length?'('+v:'';
     if(v.length<=6) return '('+v.slice(0,2)+') '+v.slice(2);
     if(v.length<=10) return '('+v.slice(0,2)+') '+v.slice(2,6)+'-'+v.slice(6);
     return '('+v.slice(0,2)+') '+v.slice(2,7)+'-'+v.slice(7); }
-  const valido=()=>nome.value.trim().length>=2 && wa.value.replace(/\D/g,'').length>=10;
-  function checa(){ btn.disabled=!valido(); }
-  wa.addEventListener('input',()=>{ wa.value=fmt(wa.value); checa(); });
-  nome.addEventListener('input',checa);
 
-  frm.addEventListener('submit',async e=>{
-    e.preventDefault();
-    if(!valido()) return;
-    btn.disabled=true; btn.textContent='Garantindo a sua vaga…'; erro.textContent='';
+  // quando um dos formulários é enviado, os dois passam a mostrar a confirmação
+  function marcarInscrito(){
+    caixas.forEach(c=>{ c.querySelector('form').style.display='none';
+                        c.querySelector('.f-done').style.display='block'; });
+  }
 
-    // preserva as UTMs da URL e marca a origem como o webinar
-    let utm={};
-    try{ utm=Object.fromEntries(new URLSearchParams(location.search)); }catch(err){}
-    utm.evento='webinar-procrastination-puzzle';
-    utm.pagina='/webinar';
+  caixas.forEach(caixa=>{
+    const frm=caixa.querySelector('form'), nome=caixa.querySelector('.f-nome'),
+          wa=caixa.querySelector('.f-wa'), btn=caixa.querySelector('.f-btn'),
+          erro=caixa.querySelector('.f-erro'), done=caixa.querySelector('.f-done');
 
-    try{
-      const r=await fetch('/api/lead',{method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({ name:nome.value.trim(), whatsapp:'+55 '+wa.value, utm })});
-      if(!r.ok) throw new Error('falha');
-      try{ fbq('trackCustom','WebinarSignup',{content_name:'The Procrastination Puzzle'}); fbq('track','Lead'); }catch(err){}
-      frm.style.display='none'; done.style.display='block';
-      done.scrollIntoView({behavior:'smooth',block:'center'});
-    }catch(err){
-      btn.disabled=false; btn.textContent='Quero participar no sábado';
-      erro.textContent='Não consegui salvar agora. Tenta de novo em instantes.';
-    }
+    const valido=()=>nome.value.trim().length>=2 && wa.value.replace(/\D/g,'').length>=10;
+    const checa=()=>{ btn.disabled=!valido(); };
+    wa.addEventListener('input',()=>{ wa.value=fmt(wa.value); checa(); });
+    nome.addEventListener('input',checa);
+
+    frm.addEventListener('submit',async e=>{
+      e.preventDefault();
+      if(!valido()) return;
+      btn.disabled=true; btn.textContent='Garantindo a sua vaga…'; erro.textContent='';
+
+      // preserva as UTMs da URL e marca a origem como o webinar
+      let utm={};
+      try{ utm=Object.fromEntries(new URLSearchParams(location.search)); }catch(err){}
+      utm.evento='webinar-procrastination-puzzle';
+      utm.pagina='/webinar';
+
+      try{
+        const r=await fetch('/api/lead',{method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({ name:nome.value.trim(), whatsapp:'+55 '+wa.value, utm })});
+        if(!r.ok) throw new Error('falha');
+        try{ fbq('trackCustom','WebinarSignup',{content_name:'The Procrastination Puzzle'}); fbq('track','Lead'); }catch(err){}
+        marcarInscrito();
+        done.scrollIntoView({behavior:'smooth',block:'center'});
+      }catch(err){
+        btn.disabled=false; btn.textContent='Quero participar no sábado';
+        erro.textContent='Não consegui salvar agora. Tenta de novo em instantes.';
+      }
+    });
   });
 })();
 </script>

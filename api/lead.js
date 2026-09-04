@@ -16,13 +16,29 @@ module.exports = async (req, res) => {
     const answers = JSON.stringify(b.answers || []);
     const utm     = JSON.stringify(b.utm     || {});
     const id = b.id ? parseInt(b.id, 10) : null;
+    const session = b.session ? String(b.session).slice(0, 64) : null;
     if (id) {
+      // atualização explícita (tela do nome). COALESCE: um campo ausente nunca apaga o que já foi gravado.
       await sql`
         UPDATE leads
-        SET name=${name}, whatsapp=${whatsapp}, gender=${gender}, age=${age}, profile=${profile},
-            scores=${scores}::jsonb, answers=${answers}::jsonb, utm=${utm}::jsonb
+        SET name=COALESCE(${name}, name), whatsapp=${whatsapp}, gender=COALESCE(${gender}, gender), age=COALESCE(${age}, age),
+            profile=COALESCE(${profile}, profile), scores=${scores}::jsonb, answers=${answers}::jsonb, utm=${utm}::jsonb,
+            session_id=COALESCE(session_id, ${session})
         WHERE id=${id}`;
       res.status(200).json({ ok: true, id });
+    } else if (session) {
+      // idempotente por sessão do quiz: reenvio (toque duplo, Enter+clique, voltar e corrigir) atualiza a MESMA linha.
+      // Não toca em status/status_at/comercial/purchases — o estado do CRM nunca é resetado por um reenvio.
+      const rows = await sql`
+        INSERT INTO leads (session_id, name, whatsapp, gender, age, profile, scores, answers, utm)
+        VALUES (${session}, ${name}, ${whatsapp}, ${gender}, ${age}, ${profile}, ${scores}::jsonb, ${answers}::jsonb, ${utm}::jsonb)
+        ON CONFLICT (session_id) DO UPDATE SET
+          name=COALESCE(EXCLUDED.name, leads.name), whatsapp=EXCLUDED.whatsapp,
+          gender=COALESCE(EXCLUDED.gender, leads.gender), age=COALESCE(EXCLUDED.age, leads.age),
+          profile=COALESCE(EXCLUDED.profile, leads.profile),
+          scores=EXCLUDED.scores, answers=EXCLUDED.answers, utm=EXCLUDED.utm
+        RETURNING id`;
+      res.status(200).json({ ok: true, id: rows[0].id });
     } else {
       const rows = await sql`
         INSERT INTO leads (name, whatsapp, gender, age, profile, scores, answers, utm)

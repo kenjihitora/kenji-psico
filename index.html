@@ -265,7 +265,7 @@ QUESTIONS.forEach(q => {
   }
 });
 
-const state = {pos:0, name:"", gender:null, age:null, answers:{}, whatsapp:"", utm:{}, leadId:null};
+const state = {pos:0, name:"", gender:null, age:null, answers:{}, whatsapp:"", utm:{}, leadId:null, leadPromise:null};
 try{ state.utm = Object.fromEntries(new URLSearchParams(location.search)); }catch(e){}
 // Meta Pixel — dispara evento com segurança (não quebra se o pixel for bloqueado)
 function fb(){ try{ if(window.fbq) window.fbq.apply(window, arguments); }catch(e){} }
@@ -313,9 +313,17 @@ function computeResult(){const s=scores();let mx=-1,top=[];
 /* ---- navigation ---- */
 function setProgress(){bar.style.width=Math.round((state.pos/(FLOW.length-1))*100)+"%";
   backBtn.classList.toggle('hide', state.pos===0 || NOBACK.has(FLOW[state.pos].type));}
-function go(next,dir){dir=dir||'fwd';const cur=stage.firstElementChild;
+// Navegação transacional: UMA transição por vez. Toque duplo e "voltar" no meio de uma
+// transição não empilham renders (era a causa de tela pulada, lead sem idade e do "engasgo").
+let _navLock=false,_navTimer=null,_pendingTimer=null;
+function later(fn,ms){clearTimeout(_pendingTimer);_pendingTimer=setTimeout(()=>{_pendingTimer=null;fn();},ms);}
+function go(next,dir){
+  if(_navLock||next<0||next>=FLOW.length)return;
+  clearTimeout(_pendingTimer);_pendingTimer=null;          // cancela uma resposta ainda "no ar"
+  _navLock=true;dir=dir||'fwd';const cur=stage.firstElementChild;
   if(cur)cur.classList.add(dir==='fwd'?'out-left':'out-right');
-  setTimeout(()=>{state.pos=next;render(dir);},cur?250:0);}
+  clearTimeout(_navTimer);
+  _navTimer=setTimeout(()=>{try{state.pos=next;render(dir);}finally{_navLock=false;}},cur?250:0);}
 function back(){if(state.pos>0)go(state.pos-1,'back');}
 
 function render(dir){setProgress();track(state.pos);stage.innerHTML="";
@@ -368,12 +376,9 @@ function bindName(){const inp=document.getElementById('nm'),btn=document.getElem
   const ok=v=>v.trim().length>=2;
   inp.addEventListener('input',()=>btn.disabled=!ok(inp.value));
   inp.addEventListener('keydown',e=>{if(e.key==='Enter'&&!btn.disabled)submitName();});}
-function submitName(){state.name=document.getElementById('nm').value.trim();
-  if(state.leadId){
-    const payload={id:state.leadId,name:state.name,whatsapp:'+55'+state.whatsapp,gender:state.gender,age:state.age,
-      profile:computeResult(),scores:scores(),answers:answersExport(),utm:state.utm};
-    fetch('/api/lead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).catch(()=>{});
-  }
+function submitName(){if(_navLock)return;state.name=document.getElementById('nm').value.trim();
+  // espera o POST do WhatsApp responder (se ainda estiver em voo) e atualiza o MESMO lead — antes o nome era descartado
+  (state.leadPromise||Promise.resolve(null)).then(()=>saveLead());
   go(state.pos+1);}
 
 function viewPick(kind){
@@ -386,24 +391,27 @@ function viewPick(kind){
     <span class="em">${o.e}</span><span class="txt">${o.t}</span></button>`).join("");
   return `<div class="grow"></div><div class="step">${cfg.step}</div>
     <h2>${cfg.q}</h2><div class="options">${opts}</div><div class="grow"></div>`;}
-function bindPick(kind){const list=kind==="gender"?GENDER:AGE;
+function bindPick(kind){const list=kind==="gender"?GENDER:AGE;let scheduled=false;const target=state.pos+1;
   stage.querySelectorAll('.opt').forEach(b=>b.addEventListener('click',()=>{
-    if(stage.querySelector('.opt.sel:not([data-i="'+b.dataset.i+'"])')){}
-    state[kind]=list[+b.dataset.i].t;
+    state[kind]=list[+b.dataset.i].t;                        // pode trocar a escolha até a transição sair
     stage.querySelectorAll('.opt').forEach(x=>x.classList.remove('sel'));
-    b.classList.add('sel');setTimeout(()=>go(state.pos+1),320);}));}
+    b.classList.add('sel');
+    if(!scheduled){scheduled=true;later(()=>go(target),320);} // só UMA navegação por tela
+  }));}
 
 function viewQuestion(i){const q=QUESTIONS[i];const sel=state.answers[i]&&state.answers[i].idx;
   const opts=q.options.map((o,idx)=>`<button class="opt${sel===idx?' sel':''}" data-i="${idx}">
     <span class="em">${o.e}</span><span class="txt">${o.t}</span></button>`).join("");
   return `<div class="step">${q.step}</div>${q.lead?`<p class="lead">${q.lead}</p>`:""}
     <h2>${q.question}</h2><div class="options">${opts}</div><div class="grow"></div>`;}
-function bindQuestion(i){const q=QUESTIONS[i];
+function bindQuestion(i){const q=QUESTIONS[i];let scheduled=false;const target=state.pos+1;
   stage.querySelectorAll('.opt').forEach(b=>b.addEventListener('click',()=>{
-    if(stage.querySelector('.opt.sel'))return;
+    // ao revisitar (voltar), a resposta anterior vem marcada e PODE ser trocada — antes o guard travava a tela
+    stage.querySelectorAll('.opt').forEach(x=>x.classList.remove('sel'));
     b.classList.add('sel');const idx=+b.dataset.i;
     state.answers[i]={p:q.options[idx].p,weight:q.weight,idx};
-    setTimeout(()=>go(state.pos+1),340);}));}
+    if(!scheduled){scheduled=true;later(()=>go(target),340);}
+  }));}
 
 function viewTeaser(){return `<div class="grow"></div><div class="center">
   <div class="teaser-ico">🧠</div>
@@ -437,14 +445,18 @@ function bindEmail(){const inp=document.getElementById('wa'),btn=document.getEle
   inp.addEventListener('keydown',e=>{if(e.key==='Enter'&&!btn.disabled)submitEmail();});}
 function answersExport(){return QUESTIONS.map((q,i)=>{const a=state.answers[i];
   return a?{q:q.question,a:q.options[a.idx].t,perfil:a.p}:null;}).filter(Boolean);}
-function submitEmail(){state.whatsapp=document.getElementById('wa').value.replace(/\D/g,'');
-  const payload={name:state.name,whatsapp:'+55'+state.whatsapp,gender:state.gender,age:state.age,
-    profile:computeResult(),scores:scores(),answers:answersExport(),utm:state.utm};
-  fetch('/api/lead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
-    .then(r => r.json())
-    .then(res => { if(res && res.id) state.leadId = res.id; })
-    .catch(()=>{});
-  fb('track','Lead',{content_name:payload.profile});
+function leadPayload(){return {id:state.leadId||undefined,session:SESSION_ID,name:state.name||null,whatsapp:'+55'+state.whatsapp,
+    gender:state.gender,age:state.age,profile:computeResult(),scores:scores(),answers:answersExport(),utm:state.utm};}
+// Gravação idempotente: o servidor usa session_id (ou id) como chave — reenviar ATUALIZA o mesmo lead, nunca duplica.
+function saveLead(){
+  const p=fetch('/api/lead',{method:'POST',keepalive:true,headers:{'Content-Type':'application/json'},body:JSON.stringify(leadPayload())})
+    .then(r=>r.json()).then(res=>{ if(res&&res.id) state.leadId=res.id; return res; }).catch(()=>null);
+  state.leadPromise=p; return p;}
+function submitEmail(){if(_navLock)return;
+  const btn=document.getElementById('emailBtn');if(btn)btn.disabled=true;   // sem envio duplo por toque duplo / Enter+clique
+  state.whatsapp=document.getElementById('wa').value.replace(/\D/g,'');
+  saveLead();
+  fb('track','Lead',{content_name:computeResult()});
   go(state.pos+1);}
 
 function viewCalc(){const steps=["Analisando seus comportamentos","Mapeando seus pensamentos automáticos","Identificando sua emoção dominante","Localizando o seu gatilho principal","Montando o seu diagnóstico"];
